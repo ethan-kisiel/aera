@@ -1,163 +1,533 @@
-@import './base.css';
-
-body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background-image: url('./wavy-lines.svg');
-  background-size: cover;
-  user-select: none;
-}
-
-code {
-  font-weight: 600;
-  padding: 3px 5px;
-  border-radius: 2px;
-  background-color: var(--color-background-mute);
-  font-family:
-    ui-monospace,
-    SFMono-Regular,
-    SF Mono,
-    Menlo,
-    Consolas,
-    Liberation Mono,
-    monospace;
-  font-size: 85%;
-}
+/* ==========================================================================
+   Application
+   ========================================================================== */
 
 #app {
+  width: 100%;
+  height: 100vh;
+
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-  margin-bottom: 80px;
-}
 
-.logo {
-  margin-bottom: 20px;
-  -webkit-user-drag: none;
-  height: 128px;
-  width: 128px;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 1.2em #6988e6aa);
-}
-
-.creator {
-  font-size: 14px;
-  line-height: 16px;
-  color: var(--ev-c-text-2);
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.text {
-  font-size: 28px;
-  color: var(--ev-c-text-1);
-  font-weight: 700;
-  line-height: 32px;
-  text-align: center;
-  margin: 0 10px;
-  padding: 16px 0;
-}
-
-.tip {
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--ev-c-text-2);
-  font-weight: 600;
-}
-
-.ts {
-  background: -webkit-linear-gradient(315deg, #3178c6 45%, #f0dc4e);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-}
-
-.actions {
-  display: flex;
-  padding-top: 32px;
-  margin: -6px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.action {
-  flex-shrink: 0;
-  padding: 6px;
-}
-
-.action a {
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  border: 1px solid transparent;
-  text-align: center;
-  font-weight: 600;
-  white-space: nowrap;
-  border-radius: 20px;
-  padding: 0 20px;
-  line-height: 38px;
-  font-size: 14px;
-  border-color: var(--ev-button-alt-border);
-  color: var(--ev-button-alt-text);
-  background-color: var(--ev-button-alt-bg);
-}
-
-.action a:hover {
-  border-color: var(--ev-button-alt-hover-border);
-  color: var(--ev-button-alt-hover-text);
-  background-color: var(--ev-button-alt-hover-bg);
-}
-
-.versions {
-  position: absolute;
-  bottom: 30px;
-  margin: 0 auto;
-  padding: 15px 0;
-  font-family: 'Menlo', 'Lucida Console', monospace;
-  display: inline-flex;
   overflow: hidden;
+}
+
+
+/* ==========================================================================
+   Main Ledger
+   ========================================================================== */
+
+.ledger {
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 24px 0;
+}
+
+
+/* ==========================================================================
+   Ledger Header
+   ========================================================================== */
+
+.ledger-header {
+  display: flex;
   align-items: center;
-  border-radius: 22px;
-  background-color: #202127;
-  backdrop-filter: blur(24px);
+  justify-content: space-between;
+
+  margin-bottom: 14px;
 }
 
-.versions li {
-  display: block;
-  float: left;
-  border-right: 1px solid var(--ev-c-gray-1);
-  padding: 0 20px;
+.ledger-title {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  color: var(--color-text);
+}
+
+.ledger-total {
   font-size: 14px;
-  line-height: 14px;
-  opacity: 0.8;
-  &:last-child {
-    border: none;
-  }
+  color: var(--color-text-secondary);
 }
 
-@media (max-width: 720px) {
-  .text {
-    font-size: 20px;
-  }
+.ledger-total strong {
+  margin-left: 5px;
+
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
-@media (max-width: 620px) {
-  .versions {
-    display: none;
-  }
+
+/* ==========================================================================
+   Table Container
+   ========================================================================== */
+
+.table-container {
+  flex: 1;
+  min-height: 0;
+
+  overflow: auto;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
 }
 
-@media (max-width: 350px) {
-  .tip,
-  .actions {
-    display: none;
-  }
+
+/* ==========================================================================
+   Ledger Table
+   ========================================================================== */
+
+.ledger table {
+  width: 100%;
+  min-width: 1050px;
+
+  table-layout: fixed;
+}
+
+.ledger thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.ledger th {
+  height: 42px;
+  padding: 0 14px;
+
+  background: #f8f9fb;
+
+  border-bottom: 1px solid var(--color-border);
+
+  color: var(--color-text-secondary);
+
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ledger td {
+  height: 43px;
+  padding: 0 14px;
+
+  border-bottom: 1px solid #edf0f2;
+
+  color: var(--color-text);
+
+  font-size: 13px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ledger tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.ledger tbody tr:hover {
+  background: var(--color-surface-hover);
+}
+
+.ledger tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* Empty rows */
+
+.ledger tbody tr.empty-row td {
+  color: transparent;
+}
+
+.ledger tbody tr.empty-row:hover {
+  background: transparent;
+}
+
+
+/* Amount column */
+
+.ledger th.amount,
+.ledger td.amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ==========================================================================
+   Column Sizing
+   ========================================================================== */
+
+.ledger th:nth-child(1),
+.ledger td:nth-child(1) {
+  width: 115px;
+}
+
+.ledger th:nth-child(2),
+.ledger td:nth-child(2) {
+  width: 200px;
+}
+
+.ledger th:nth-child(3),
+.ledger td:nth-child(3) {
+  width: 110px;
+}
+
+.ledger th:nth-child(4),
+.ledger td:nth-child(4) {
+  width: 120px;
+}
+
+.ledger th:nth-child(5),
+.ledger td:nth-child(5) {
+  width: 150px;
+}
+
+.ledger th:nth-child(6),
+.ledger td:nth-child(6) {
+  width: 150px;
+}
+
+.ledger th:nth-child(7),
+.ledger td:nth-child(7) {
+  width: 170px;
+}
+
+
+/* ==========================================================================
+   Entry Editor
+   ========================================================================== */
+
+.entry-editor {
+  flex-shrink: 0;
+
+  padding: 18px 24px 20px;
+
+  background: var(--color-surface);
+
+  border-top: 1px solid var(--color-border);
+
+  box-shadow:
+    0 -3px 12px rgba(0, 0, 0, 0.025);
+}
+
+
+/* Editor header */
+
+.entry-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 14px;
+}
+
+.entry-editor-title {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: var(--color-text);
+}
+
+.entry-editor-mode {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.entry-editor-mode strong {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+
+/* ==========================================================================
+   Form Layout
+   ========================================================================== */
+
+.entry-form {
+  display: grid;
+
+  grid-template-columns:
+    150px
+    minmax(170px, 1fr)
+    150px
+    150px
+    150px
+    minmax(180px, 1.2fr)
+    auto;
+
+  gap: 12px;
+
+  align-items: start;
+}
+
+.form-field {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  color: var(--color-text-secondary);
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+
+/* ==========================================================================
+   Inputs
+   ========================================================================== */
+
+input,
+select,
+textarea {
+  width: 100%;
+
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+
+  background: #ffffff;
+
+  color: var(--color-text);
+
+  outline: none;
+
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+input,
+select {
+  height: 36px;
+  padding: 0 10px;
+}
+
+textarea {
+  min-height: 74px;
+  padding: 9px 10px;
+
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #b0b5bc;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: #c4c9d0;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-primary);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* ==========================================================================
+   Select
+   ========================================================================== */
+
+select {
+  appearance: none;
+
+  padding-right: 32px;
+
+  background-image:
+    linear-gradient(45deg, transparent 50%, #8b929b 50%),
+    linear-gradient(135deg, #8b929b 50%, transparent 50%);
+
+  background-position:
+    calc(100% - 14px) 15px,
+    calc(100% - 10px) 15px;
+
+  background-size:
+    4px 4px,
+    4px 4px;
+
+  background-repeat: no-repeat;
+}
+
+
+/* ==========================================================================
+   Amount
+   ========================================================================== */
+
+.amount-input {
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding-top: 18px;
+}
+
+button {
+  height: 36px;
+
+  padding: 0 15px;
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  font-size: 13px;
+  font-weight: 500;
+
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+
+/* Primary */
+
+.button-primary,
+button.create {
+  background: var(--color-primary);
+  color: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.button-primary:hover,
+button.create:hover {
+  background: var(--color-primary-hover);
+}
+
+.button-primary:active,
+button.create:active {
+  transform: translateY(1px);
+}
+
+
+/* Secondary */
+
+.button-secondary,
+button.clear {
+  background: #ffffff;
+
+  border-color: var(--color-border-strong);
+
+  color: var(--color-text);
+}
+
+.button-secondary:hover,
+button.clear:hover {
+  background: var(--color-surface-muted);
+}
+
+
+/* Danger */
+
+.button-danger,
+button.delete {
+  background: #ffffff;
+
+  border-color: #fecaca;
+
+  color: var(--color-danger);
+}
+
+.button-danger:hover,
+button.delete:hover {
+  background: var(--color-danger-soft);
+
+  border-color: #fca5a5;
+}
+
+
+/* Disabled */
+
+button:disabled {
+  opacity: 0.45;
+
+  box-shadow: none;
+}
+
+button:disabled:hover {
+  background: inherit;
+}
+
+
+/* ==========================================================================
+   Validation
+   ========================================================================== */
+
+input.invalid,
+select.invalid,
+textarea.invalid {
+  border-color: #ef4444;
+
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+
+/* ==========================================================================
+   Status / Utility Text
+   ========================================================================== */
+
+.form-error {
+  margin-top: 3px;
+
+  color: var(--color-danger);
+
+  font-size: 11px;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.application-footer {
+  flex-shrink: 0;
+
+  padding: 6px 24px;
+
+  color: var(--color-text-muted);
+
+  font-size: 10px;
+
+  background: var(--color-background);
 }

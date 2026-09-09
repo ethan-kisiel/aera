@@ -6,14 +6,12 @@ declare global {
   interface Window { api: { fetchGreeting: () => Promise<string> } }
 }
 
-@customElement('my-app')
-export class MyApp extends LitElement {
+@customElement('aera-app')
+export class AeraApp extends LitElement {
   @state()
   private greeting = 'Loading...'
 
   static styles = css`
-    :host { display: block; font-family: sans-serif; padding: 2rem; }
-    h1 { color: #646cff; }
   `
 
   async connectedCallback() {
