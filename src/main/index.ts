@@ -3,9 +3,9 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-const addon = require(join(__dirname, '../../build/Release/native_addon.node'))
+const ledgerAddon = require(join(__dirname, '../../build/Release/ledger_addon.node'))
 
-function createWindow(): void {  
+function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -53,11 +53,11 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-  
+
   /*
     NATIVE BINDINGS
   */
-  ipcMain.handle('get-native-greeting', () => addon.getGreeting())
+  ipcMain.handle('get-native-greeting', () => ledgerAddon.status())
 
   createWindow()
 

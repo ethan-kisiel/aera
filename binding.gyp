@@ -1,9 +1,9 @@
 {
   "targets": [
     {
-      "target_name": "native_addon",
+      "target_name": "ledger_addon",
       "sources": [ 
-        "src/native/main.cc",
+        "src/native/addon.cc",
         "<!@(node -p \"require('fs').readdirSync('src/native/src/core').filter(f => f.endsWith('.cc') || f.endsWith('.cpp')).map(f => 'src/native/src/core/' + f).join(' ')\")",
         "<!@(node -p \"require('fs').readdirSync('src/native/src/ledger').filter(f => f.endsWith('.cc') || f.endsWith('.cpp')).map(f => 'src/native/src/ledger/' + f).join(' ')\")"
       ],

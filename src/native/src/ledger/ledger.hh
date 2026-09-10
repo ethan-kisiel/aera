@@ -1,1 +1,5 @@
-// TODO: This will have
+#pragma once
+
+class Ledger {
+
+};
