@@ -1,5 +1,5 @@
 #include <napi.h>
-#include <entry.h>
+#include "src/ledger/ledger_repository.hh"
 
 Napi::String GetGreeting(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
