@@ -56,10 +56,9 @@ std::optional<std::vector<Entry>> LedgerRepository::search(
     try {
     auto storage = get_storage(this->db_file_);
     auto where_clause = sqlite_orm::where(
-        (!search_filter.date_range.has_value() or 
-        sqlite_orm::between(
-            &Entry::date, search_filter.date_range->first,
-            search_filter.date_range->second
+        (!search_filter.year.has_value() or 
+        sqlite_orm::like(
+            &Entry::date, search_filter.year.value()
         )) and
         (!search_filter.amount_range.has_value() or
         sqlite_orm::between(
@@ -103,4 +102,6 @@ std::optional<std::vector<Entry>> LedgerRepository::search(
 
 LedgerRepository::LedgerRepository(std::string db_file) {
     this->db_file_ = db_file;
+    auto storage = get_storage(this->db_file_);
+    storage.sync_schema();
 }

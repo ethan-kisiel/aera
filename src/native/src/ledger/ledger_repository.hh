@@ -5,7 +5,7 @@
 class LedgerRepository {
     public:
         struct EntrySearchFilter {
-            std::optional<std::pair<int, int>> date_range;
+            std::optional<std::string> year;
             std::optional<std::pair<long, long>> amount_range;
             std::optional<std::vector<std::string>> check_numbers;
             std::optional<std::vector<std::string>> checkbooks;

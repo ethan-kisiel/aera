@@ -11,6 +11,7 @@ inline auto get_storage(const std::string db_path) {
         make_column("date", &Entry::date),
         make_column("check_number", &Entry::check_number),
         make_column("checkbook", &Entry::checkbook),
+        make_column("category", &Entry::category),
         make_column("category", &Entry::subcategory),
         make_column("itemization", &Entry::itemization),
         make_column("notes", &Entry::notes)
@@ -18,7 +19,8 @@ inline auto get_storage(const std::string db_path) {
     );
 
     storage.busy_timeout(5000);
-    storage.pragma.journal_mode(journal_mode::WAL);
 
+    storage.pragma.journal_mode(journal_mode::WAL);
+    
     return storage;
 }

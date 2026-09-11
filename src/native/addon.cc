@@ -21,10 +21,17 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
 
   private:
     Napi::Value Status(const Napi::CallbackInfo& info) {
-      return Napi::String::New(info.Env(), "Status: NULL");
+      Napi::Env env = info.Env();
+      Napi::Object input_object = info[0].As<Napi::Object>();
+
+      if (!input_object.Has("name")) {
+        return Napi::String::New(info.Env(), "Status: NULL");
+      }
+      
+      return Napi::String::New(info.Env(), "Status: " + input_object.Get("name").As<Napi::String>().Utf8Value());
     }
 
-    std::unique_ptr<Ledger> ledger_ = std::make_unique<Ledger>();
+    //std::unique_ptr<Ledger> ledger_ = std::make_unique<Ledger>();
 };
 
 // NODE_API_MODULE(native_addon, Init)

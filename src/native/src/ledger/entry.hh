@@ -5,7 +5,7 @@
 struct Entry {
     int id;
     long amount;
-    int date;
+    std::string date;
     std::optional<std::string> check_number;
     std::string checkbook;
     std::string category;
