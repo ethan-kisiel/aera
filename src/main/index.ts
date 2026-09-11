@@ -58,6 +58,17 @@ app.whenReady().then(() => {
     NATIVE BINDINGS
   */
   ipcMain.handle('get-native-greeting', () => ledgerAddon.status({ name: "balls"}))
+  ipcMain.handle('create-entry', () => ledgerAddon.createEntry({
+    id: -1,
+    amount: 100,
+    date: '01/22/2026',
+    check_number: '',
+    checkbook: 'checkbook',
+    category: 'category',
+    subcategory: 'subcategory',
+    itemization: 'itemization',
+    notes: 'notes notes notes',
+  }));
 
   createWindow()
 

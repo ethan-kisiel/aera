@@ -3,7 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  fetchGreeting: () => ipcRenderer.invoke('get-native-greeting')
+  fetchGreeting: () => ipcRenderer.invoke('get-native-greeting'),
+  createEntry: () => ipcRenderer.invoke('create-entry')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

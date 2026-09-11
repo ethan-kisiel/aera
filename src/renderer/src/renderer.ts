@@ -5,7 +5,20 @@ import '../components/notes-input'
 
 // Map the preload bridge to the Window object
 declare global {
-  interface Window { api: { fetchGreeting: () => Promise<string> } }
+  interface Window {
+    api: { 
+      fetchGreeting: () => Promise<string>,
+      createEntry: () => Promise<{id: number,
+        amount: number,
+        date: string,
+        check_number: string,
+        checkbook: string,
+        category: string,
+        subcategory: string,
+        itemization: string, 
+        notes: string}>
+    } 
+  }
 }
 
 @customElement('aera-app')
@@ -30,7 +43,7 @@ export class AeraApp extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback()
-    this.greeting = await window.api.fetchGreeting()
+    this.greeting = JSON.stringify(await window.api.createEntry())
   }
 
   render() {
