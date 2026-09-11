@@ -3,6 +3,11 @@
 #include "../core/database.hh"
 
 class LedgerRepository {
+    private:
+        std::string db_file_;
+        using Storage = decltype(get_storage(""));
+        Storage storage_;
+
     public:
         struct EntrySearchFilter {
             std::optional<std::string> year;
@@ -17,6 +22,9 @@ class LedgerRepository {
             int Entry::*column;
             bool descending;
         };
+        
+        LedgerRepository(const std::string& db_file = ":memory:");
+
         std::optional<Entry> create_entry(Entry entry);
         std::optional<Entry> get_by_id(int id);
         std::optional<std::vector<Entry>> get_all(std::optional<SortConfig> sort_config = std::nullopt);
@@ -25,7 +33,4 @@ class LedgerRepository {
             EntrySearchFilter search_filter,
             std::optional<SortConfig> sort_config = std::nullopt
         );
-        LedgerRepository(std::string db_file = ":memory:");
-    private:
-        std::string db_file_;
 };

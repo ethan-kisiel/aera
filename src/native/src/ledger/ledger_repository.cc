@@ -1,10 +1,18 @@
 #include "ledger_repository.hh"
 #include "database.hh"
 
+
+LedgerRepository::LedgerRepository(const std::string& db_file) : db_file_(db_file), storage_(get_storage(db_file)) 
+{
+    try {
+        storage_.sync_schema();
+    } catch (...) {
+    }
+}
+
 std::optional<Entry> LedgerRepository::create_entry(Entry entry) {
     try {
-        auto storage = get_storage(this->db_file_);
-        auto result = storage.insert(entry);
+        auto result = this->storage_.insert(entry);
         entry.id = result;
         return entry;
     }
@@ -98,10 +106,4 @@ std::optional<std::vector<Entry>> LedgerRepository::search(
         return std::nullopt;
     }
     return std::nullopt;
-}
-
-LedgerRepository::LedgerRepository(std::string db_file) {
-    this->db_file_ = db_file;
-    auto storage = get_storage(this->db_file_);
-    storage.sync_schema();
 }
