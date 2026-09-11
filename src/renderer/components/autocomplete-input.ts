@@ -28,6 +28,14 @@ export class AutocompleteInput extends LitElement {
     public maxResults = 8;
 
     /**
+     * Whether the input is currently invalid.
+     *
+     * This is intended to be controlled by the parent component.
+     */
+    @property({ type: Boolean })
+    public invalid = false;
+
+    /**
      * Whether the suggestion dropdown is currently visible.
      */
     @state()
@@ -45,6 +53,39 @@ export class AutocompleteInput extends LitElement {
     @state()
     private _matches: string[] = [];
 
+    /**
+     * The current autocomplete suggestion.
+     *
+     * This is the first matching item unless the user has
+     * navigated to another item with the arrow keys.
+     */
+    private get _suggestion(): string {
+        if (this._matches.length === 0) {
+            return '';
+        }
+
+        return this._matches[this._highlightedIndex] ?? '';
+    }
+
+    /**
+     * The portion of the suggestion that follows the user's input.
+     */
+    private get _ghostText(): string {
+        const suggestion = this._suggestion;
+
+        if (
+            !suggestion ||
+            !this.value ||
+            !suggestion
+                .toLowerCase()
+                .startsWith(this.value.toLowerCase())
+        ) {
+            return '';
+        }
+
+        return suggestion.slice(this.value.length);
+    }
+
     public static styles = css`
         :host {
             position: relative;
@@ -57,17 +98,65 @@ export class AutocompleteInput extends LitElement {
             width: 100%;
         }
 
-        input {
+        /*
+         * The ghost text sits behind the real input.
+         *
+         * Both elements use identical typography and padding so
+         * that the ghost completion lines up with the user's text.
+         */
+        .ghost {
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
             width: 100%;
             height: 36px;
-            padding: 0 10px;
 
             box-sizing: border-box;
+
+            padding: 0 10px;
+
+            display: flex;
+            align-items: center;
+
+            pointer-events: none;
+            user-select: none;
+
+            white-space: nowrap;
+            overflow: hidden;
+
+            font: inherit;
+            font-size: 13px;
+
+            color: #9ca3af;
+
+            z-index: 0;
+        }
+
+        .ghost-prefix {
+            visibility: hidden;
+        }
+
+        .ghost-completion {
+            color: #aeb4bc;
+        }
+
+        input {
+            position: relative;
+            z-index: 1;
+
+            width: 100%;
+            height: 36px;
+
+            box-sizing: border-box;
+
+            padding: 0 10px;
 
             border: 1px solid #d5d9de;
             border-radius: 7px;
 
-            background: #ffffff;
+            background: transparent;
             color: #1f2937;
 
             font: inherit;
@@ -91,8 +180,20 @@ export class AutocompleteInput extends LitElement {
                 0 0 0 3px rgba(37, 99, 235, 0.10);
         }
 
+        input::placeholder {
+            color: #b0b5bc;
+        }
+
+        input.invalid {
+            border-color: #ef4444;
+
+            box-shadow:
+                0 0 0 3px rgba(239, 68, 68, 0.08);
+        }
+
         .dropdown {
             position: absolute;
+
             z-index: 1000;
 
             top: calc(100% + 4px);
@@ -100,6 +201,7 @@ export class AutocompleteInput extends LitElement {
             right: 0;
 
             max-height: 240px;
+
             overflow-y: auto;
 
             padding: 4px;
@@ -118,6 +220,7 @@ export class AutocompleteInput extends LitElement {
             align-items: center;
 
             min-height: 34px;
+
             padding: 0 9px;
 
             border-radius: 5px;
@@ -134,19 +237,37 @@ export class AutocompleteInput extends LitElement {
         .option.highlighted {
             background: #f1f5f9;
         }
-
-        .option.selected {
-            color: #2563eb;
-        }
     `;
 
     protected render() {
+        const suggestion = this._suggestion;
+        const ghostText = this._ghostText;
+
         return html`
             <div class="container">
+                ${ghostText
+                    ? html`
+                          <div
+                              class="ghost"
+                              aria-hidden="true"
+                          >
+                              <span class="ghost-prefix">
+                                  ${this.value}
+                              </span>
+
+                              <span class="ghost-completion">
+                                  ${ghostText}
+                              </span>
+                          </div>
+                      `
+                    : nothing}
+
                 <input
+                    class=${this.invalid ? 'invalid' : ''}
                     .value=${this.value}
                     placeholder=${this.placeholder}
                     autocomplete="off"
+                    aria-invalid=${this.invalid}
                     @input=${this._handleInput}
                     @keydown=${this._handleKeyDown}
                     @focus=${this._handleFocus}
@@ -170,14 +291,10 @@ export class AutocompleteInput extends LitElement {
                                                       ? 'highlighted'
                                                       : ''
                                               }
-                                              ${
-                                                  item === this.value
-                                                      ? 'selected'
-                                                      : ''
-                                              }
                                           `}
                                           role="option"
-                                          aria-selected=${item === this.value}
+                                          aria-selected=${index ===
+                                          this._highlightedIndex}
                                           @mousedown=${(
                                               event: MouseEvent,
                                           ) =>
@@ -218,8 +335,8 @@ export class AutocompleteInput extends LitElement {
 
     private _handleBlur(): void {
         /*
-         * Delay closing the dropdown so that a mouse click
-         * on a suggestion can be processed first.
+         * Delay closing so that a mouse click on a dropdown
+         * option can be processed first.
          */
         window.setTimeout(() => {
             this._isOpen = false;
@@ -282,9 +399,7 @@ export class AutocompleteInput extends LitElement {
 
         event.preventDefault();
 
-        this._select(
-            this._matches[this._highlightedIndex],
-        );
+        this._select(this._suggestion);
     }
 
     private _handleTab(): void {
@@ -295,12 +410,10 @@ export class AutocompleteInput extends LitElement {
         /*
          * Do not preventDefault().
          *
-         * This allows the browser to continue moving focus
-         * to the next form field after accepting the suggestion.
+         * This accepts the autocomplete while allowing Tab
+         * to continue moving focus to the next form field.
          */
-        this._select(
-            this._matches[this._highlightedIndex],
-        );
+        this._select(this._suggestion);
     }
 
     private _updateMatches(): void {
@@ -318,10 +431,9 @@ export class AutocompleteInput extends LitElement {
                     item.toLowerCase();
 
                 /*
-                 * Prefix matching:
+                 * Prefix matching only.
                  *
                  * "tra" -> "Transportation"
-                 *
                  * "port" -> no match
                  */
                 return (
@@ -351,10 +463,6 @@ export class AutocompleteInput extends LitElement {
         this._isOpen = false;
         this._highlightedIndex = 0;
 
-        /*
-         * Dispatch change so the parent component knows
-         * that a value was committed.
-         */
         this.dispatchEvent(
             new Event('change', {
                 bubbles: true,

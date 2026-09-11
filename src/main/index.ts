@@ -57,7 +57,7 @@ app.whenReady().then(() => {
   /*
     NATIVE BINDINGS
   */
-  ipcMain.handle('get-native-greeting', () => ledgerAddon.status())
+  ipcMain.handle('get-native-greeting', () => ledgerAddon.status({ name: "balls"}))
 
   createWindow()
 

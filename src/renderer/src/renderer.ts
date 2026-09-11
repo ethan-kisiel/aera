@@ -1,6 +1,8 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '../components/autocomplete-input'
+import '../components/notes-input'
+
 // Map the preload bridge to the Window object
 declare global {
   interface Window { api: { fetchGreeting: () => Promise<string> } }
@@ -21,6 +23,7 @@ export class AeraApp extends LitElement {
     'Utilities',
   ];
   private category = "";
+  private notes = "";
 
   static styles = css`
   `
@@ -34,7 +37,9 @@ export class AeraApp extends LitElement {
     return html`
       <h1>Lit + Electron + C++</h1>
       <p>Native response: <strong>${this.greeting}</strong></p>
-      <autocomplete-input
+      
+      
+    <autocomplete-input
     .items=${this.categories}
     .value=${this.category}
     placeholder="Category"
@@ -42,6 +47,12 @@ export class AeraApp extends LitElement {
     @input=${() => {}}
     @change=${() => {}}>
     </autocomplete-input>
+
+
+    <notes-input
+    .value=${this.notes}
+    .maxLength=${50}
+    placeholder="Optional notes..."></notes-input>
     `
   }
 }
