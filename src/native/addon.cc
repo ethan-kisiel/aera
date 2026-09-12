@@ -16,11 +16,81 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
     LedgerAddon(Napi::Env env, Napi::Object exports) {
       DefineAddon(exports, {
         InstanceMethod("status", &LedgerAddon::Status),
-        InstanceMethod("createEntry", &LedgerAddon::CreateEntry)
+        InstanceMethod("createEntry", &LedgerAddon::CreateEntry),
+        InstanceMethod("getAll", &LedgerAddon::GetAll)
       });
     }
 
   private:
+    std::optional<LedgerRepository::SortConfig> parse_sort_config(const Napi::Object& input_object) {
+      Napi::Value column_value, descending_value;
+      if (!input_object.Has("column") || !input_object.Has("descending")) {
+        return std::nullopt;
+      }
+      column_value = input_object.Get("column");
+      descending_value = input_object.Get("descending");
+
+      if (!column_value.IsString() || !descending_value.IsBoolean()) {
+        return std::nullopt;
+      }
+      auto column_string = column_value.As<Napi::String>().Utf8Value();
+      auto descending = descending_value.As<Napi::Boolean>();
+      if (column_string == "id") {
+        return LedgerRepository::SortConfig {
+          &Entry::id,
+          descending
+        };
+      }
+      if (column_string == "amount") {
+        return LedgerRepository::SortConfig {
+          &Entry::amount,
+          descending
+        };
+      }
+      if (column_string == "date") {
+        return LedgerRepository::SortConfig {
+          &Entry::date,
+          descending
+        };
+      }
+      if (column_string == "check_number") {
+        return LedgerRepository::SortConfig {
+          &Entry::check_number,
+          descending
+        };
+      }
+      if (column_string == "checkbook") {
+        return LedgerRepository::SortConfig {
+          &Entry::checkbook,
+          descending
+        };
+      }
+      if (column_string == "category") {
+        return LedgerRepository::SortConfig {
+          &Entry::category,
+          descending
+        };
+      }
+      if (column_string == "subcategory") {
+        return LedgerRepository::SortConfig {
+          &Entry::subcategory,
+          descending
+        };
+      }
+      if (column_string == "itemization") {
+        return LedgerRepository::SortConfig {
+          &Entry::itemization,
+          descending
+        };
+      }
+      if (column_string == "notes") {
+        return LedgerRepository::SortConfig {
+          &Entry::notes,
+          descending
+        };
+      }
+    }
+
     std::optional<Entry> parse_entry(const Napi::Object& input_object) {      
       Napi::Value id_value,
       amount_value,
@@ -69,6 +139,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       return Entry {
         id_value.As<Napi::Number>().Int32Value(),
         amount_value.As<Napi::Number>().Int64Value(),
+        date_value.As<Napi::String>().Utf8Value(),
         check_number_value.As<Napi::String>().Utf8Value(),
         checkbook_value.As<Napi::String>().Utf8Value(),
         category_value.As<Napi::String>().Utf8Value(),
@@ -82,6 +153,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       Napi::Object entry_object = Napi::Object::New(env);
       entry_object.Set(Napi::String::New(env, "id"), entry.id);
       entry_object.Set(Napi::String::New(env, "amount"), entry.amount);
+      entry_object.Set(Napi::String::New(env, "date"), entry.date);
       entry_object.Set(Napi::String::New(env, "check_number"), entry.check_number);
       entry_object.Set(Napi::String::New(env, "checkbook"), entry.checkbook);
       entry_object.Set(Napi::String::New(env, "category"), entry.category);
@@ -114,6 +186,18 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       }
 
       return get_entry_object(entry.value(), env);
+    }
+
+    Napi::Value GetAll(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Object input_object = info[0].As<Napi::Object>();
+      auto sort_config = this->parse_sort_config(input_object);
+      auto entries = this->ledger_->get_all(sort_config);
+      Napi::Array result = Napi::Array::New(env, entries.size());
+      for (int i = 0; i < entries.size(); ++i) {
+        result[i] = this->get_entry_object(entries[i], env);
+      }
+      return result;
     }
 
     Napi::Value Status(const Napi::CallbackInfo& info) {

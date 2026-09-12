@@ -11,9 +11,9 @@ class Ledger {
         // std::set<std::string> get_itemizations() const;
 
         //crud
-        std::optional<Entry> create_entry(Entry entry);
+        std::optional<Entry> create_entry(const Entry& entry);
         // std::optional<Entry> get_by_id(int id);
-        std::optional<std::vector<Entry>> get_all(std::optional<LedgerRepository::SortConfig> sort_config = std::nullopt);
+        std::vector<Entry> get_all(const std::optional<LedgerRepository::SortConfig>& sort_config = std::nullopt);
         // std::optional<Entry> update_entry(Entry entry);
         // std::optional<std::vector<Entry>> search(
         //     LedgerRepository::EntrySearchFilter search_filter,

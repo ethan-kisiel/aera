@@ -34,14 +34,20 @@ std::optional<Entry> LedgerRepository::get_by_id(int id) {
 std::optional<std::vector<Entry>> LedgerRepository::get_all(
     std::optional<SortConfig> sort_config) {
         try {
-            auto storage = get_storage(this->db_file_);
             if (!sort_config.has_value()) {
-                return storage.get_all<Entry>();
+                return this->storage_.get_all<Entry>();
             }
-            auto order_by = sort_config->descending ? 
-                sqlite_orm::order_by(sort_config->column).desc() :
-                sqlite_orm::order_by(sort_config->column).asc();
-            return storage.get_all<Entry>(order_by);
+            return std::visit([&](auto column_ptr) -> std::vector<Entry> {
+                if (sort_config->descending) {
+                    return this->storage_.get_all<Entry>(
+                        sqlite_orm::order_by(column_ptr).desc()
+                    );
+                } else {
+                    return this->storage_.get_all<Entry>(
+                        sqlite_orm::order_by(column_ptr).asc()
+                    );
+                }
+            }, sort_config->column);
         } catch (...) {
             return std::nullopt;
         }
@@ -98,10 +104,17 @@ std::optional<std::vector<Entry>> LedgerRepository::search(
             return storage.get_all<Entry>(where_clause);
         }
 
-        auto order_by = sort_config->descending ? 
-            sqlite_orm::order_by(sort_config->column).desc() :
-            sqlite_orm::order_by(sort_config->column).asc();
-        return storage.get_all<Entry>(where_clause, order_by);
+        return std::visit([&](auto column_ptr) -> std::vector<Entry> {
+            if (sort_config->descending) {
+                return storage.get_all<Entry>(
+                    sqlite_orm::order_by(column_ptr).desc()
+                );
+            } else {
+                return storage.get_all<Entry>(
+                    sqlite_orm::order_by(column_ptr).asc()
+                );
+            }
+        }, sort_config->column);
     } catch (...) {
         return std::nullopt;
     }

@@ -18,8 +18,12 @@ class LedgerRepository {
             std::optional<std::vector<std::string>> subcategories;
             std::optional<std::vector<std::string>> itemizations;
         };
+
         struct SortConfig {
-            int Entry::*column;
+            std::variant<
+            int Entry::*,
+            long Entry::*,
+            std::string Entry::*> column;
             bool descending;
         };
         
