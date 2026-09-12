@@ -3,20 +3,24 @@ import { customElement, state } from 'lit/decorators.js'
 import '../components/autocomplete-input'
 import '../components/notes-input'
 
+interface Entry {
+  id: number,
+  amount: number,
+  date: string,
+  check_number: string,
+  checkbook: string,
+  category: string,
+  subcategory: string,
+  itemization: string, 
+  notes: string
+}
 // Map the preload bridge to the Window object
 declare global {
   interface Window {
     api: { 
       fetchGreeting: () => Promise<string>,
-      createEntry: () => Promise<{id: number,
-        amount: number,
-        date: string,
-        check_number: string,
-        checkbook: string,
-        category: string,
-        subcategory: string,
-        itemization: string, 
-        notes: string}>
+      createEntry: () => Promise<Entry>
+      getAll: () => Promise<Entry[]>
     } 
   }
 }
@@ -25,6 +29,10 @@ declare global {
 export class AeraApp extends LitElement {
   @state()
   private greeting = 'Loading...'
+
+  @state()
+  private allData = ''
+
   private categories = [
     'Food',
     'Entertainment',
@@ -44,13 +52,13 @@ export class AeraApp extends LitElement {
   async connectedCallback() {
     super.connectedCallback()
     this.greeting = JSON.stringify(await window.api.createEntry())
+    this.allData = JSON.stringify(await window.api.getAll())
   }
 
   render() {
     return html`
       <h1>Lit + Electron + C++</h1>
       <p>Native response: <strong>${this.greeting}</strong></p>
-      
       
     <autocomplete-input
     .items=${this.categories}
@@ -66,6 +74,9 @@ export class AeraApp extends LitElement {
     .value=${this.notes}
     .maxLength=${50}
     placeholder="Optional notes..."></notes-input>
+
+    <p>All objects: <strong>${this.allData}</strong></p>
     `
+
   }
 }

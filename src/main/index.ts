@@ -57,11 +57,12 @@ app.whenReady().then(() => {
   /*
     NATIVE BINDINGS
   */
+  let year = 2026
   ipcMain.handle('get-native-greeting', () => ledgerAddon.status({ name: "balls"}))
   ipcMain.handle('create-entry', () => ledgerAddon.createEntry({
     id: -1,
     amount: 100,
-    date: '01/22/2026',
+    date: `01/22/${year++}`,
     check_number: '',
     checkbook: 'checkbook',
     category: 'category',
@@ -69,6 +70,8 @@ app.whenReady().then(() => {
     itemization: 'itemization',
     notes: 'notes notes notes',
   }));
+
+  ipcMain.handle('get-all', () => ledgerAddon.getAll({ column: 'date', descending: true}));
 
   createWindow()
 
