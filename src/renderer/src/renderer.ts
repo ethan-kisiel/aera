@@ -2,6 +2,8 @@ import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import '../components/autocomplete-input'
 import '../components/notes-input'
+import '../components/simple-table'
+import { TableColumn } from '../components/simple-table'
 
 interface Entry {
   id: number,
@@ -25,13 +27,46 @@ declare global {
   }
 }
 
+interface LedgerEntry {
+    date: string;
+    category: string;
+    amount: number;
+}
+
+const columns: TableColumn<LedgerEntry>[] = [
+    {
+        key: 'date',
+        header: 'Date',
+        width: '110px',
+        getValue: (entry) => entry.date,
+    },
+
+    {
+        key: 'category',
+        header: 'Category',
+        width: '160px',
+        getValue: (entry) => entry.category,
+    },
+
+    {
+        key: 'amount',
+        header: 'Amount',
+        width: '100px',
+
+        getValue: (entry) => entry.amount,
+
+        formatValue: (value) =>
+            Number(value).toFixed(2),
+    },
+];
+
 @customElement('aera-app')
 export class AeraApp extends LitElement {
   @state()
   private greeting = 'Loading...'
 
   @state()
-  private allData = ''
+  private allData: Entry[] = []
 
   private categories = [
     'Food',
@@ -52,7 +87,7 @@ export class AeraApp extends LitElement {
   async connectedCallback() {
     super.connectedCallback()
     this.greeting = JSON.stringify(await window.api.createEntry())
-    this.allData = JSON.stringify(await window.api.getAll())
+    this.allData = await window.api.getAll()
   }
 
   render() {
@@ -75,8 +110,11 @@ export class AeraApp extends LitElement {
     .maxLength=${50}
     placeholder="Optional notes..."></notes-input>
 
-    <p>All objects: <strong>${this.allData}</strong></p>
+    <simple-table
+    .rows=${this.allData}
+    .columns=${columns}
+    @row-focus=${() => {}}
+    @row-delete=${() => {}}></simple-table>
     `
-
   }
 }
