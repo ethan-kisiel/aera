@@ -23,20 +23,22 @@
       "cflags_cc": [ "-frtti", "-fexceptions", "-std=c++20" ],
       "conditions": [
         ["OS=='mac'", {
-          "xcode_settings": {
-            "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
-            "GCC_ENABLE_CPP_RTTI": "YES",
-            "CLANG_CXX_LIBRARY": "libc++",
-            "MACOSX_DEPLOYMENT_TARGET": "10.15"
-          }
-        }],
-        ["OS=='win'", {
-          "msvs_settings": {
-            "VCCLCompilerTool": {
-              "ExceptionHandling": 1
+            "xcode_settings": {
+              "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+              "GCC_ENABLE_CPP_RTTI": "YES",
+              "CLANG_CXX_LIBRARY": "libc++",
+              "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
+              "MACOSX_DEPLOYMENT_TARGET": "10.15"
             }
-          }
-        }]
+          }],
+          ["OS=='win'", {
+            "msvs_settings": {
+              "VCCLCompilerTool": {
+                "ExceptionHandling": 1,
+                "AdditionalOptions": [ "/std:c++20" ]
+              }
+            }
+          }]
       ]
     }
   ]
