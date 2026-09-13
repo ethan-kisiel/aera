@@ -1,8 +1,10 @@
-name: Build & Package
+name: Build & Release
 
 on:
   push:
     branches: [ main, master ]
+    tags:
+      - 'v*' # Pushing a tag like 'v1.0.0' triggers the GitHub Release
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -11,6 +13,10 @@ jobs:
   build:
     name: Build (\({{ matrix.os }} -\){{ matrix.arch }})
     runs-on: ${{ matrix.os }}
+    
+    # Required permission for electron-builder to upload to GitHub Releases
+    permissions:
+      contents: write 
 
     strategy:
       fail-fast: false
@@ -19,10 +25,10 @@ jobs:
           - os: windows-latest
             arch: x64
             target_flag: --win
-          - os: macos-latest # Intel x64 macOS runner
+          - os: macos-latest
             arch: x64
             target_flag: --mac --x64
-          - os: macos-latest # Apple Silicon arm64 macOS runner
+          - os: macos-latest
             arch: arm64
             target_flag: --mac --arm64
 
@@ -49,19 +55,9 @@ jobs:
       - name: Build App Assets
         run: npm run build
 
-      - name: Package Application
-        run: npx electron-builder ${{ matrix.target_flag }}
+      - name: Package & Publish
+        run: npx electron-builder \({{ matrix.target_flag }} --publish\){{ env.PUBLISH_FLAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-{{ matrix.os }}-{{ matrix.arch }}
-          path: |
-            dist/*.exe
-            dist/*.msi
-            dist/*.dmg
-            dist/*.zip
-            !dist/*.blockmap
-          retention-days: 7
+          # Dynamically evaluate: publish if triggered by a tag, otherwise skip publishing
+          PUBLISH_FLAG: ${{ startsWith(github.ref, 'refs/tags/v') && 'always' || 'never' }}
