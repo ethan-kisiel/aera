@@ -3,29 +3,10 @@ import { customElement, state } from 'lit/decorators.js'
 import '../components/autocomplete-input'
 import '../components/notes-input'
 import '../components/simple-table'
+import '../components/date-input'
 import { TableColumn } from '../components/simple-table'
+import { Entry } from '../../types/shared-types'
 
-interface Entry {
-  id: number,
-  amount: number,
-  date: string,
-  check_number: string,
-  checkbook: string,
-  category: string,
-  subcategory: string,
-  itemization: string, 
-  notes: string
-}
-// Map the preload bridge to the Window object
-declare global {
-  interface Window {
-    api: { 
-      fetchGreeting: () => Promise<string>,
-      createEntry: () => Promise<Entry>
-      getAll: () => Promise<Entry[]>
-    } 
-  }
-}
 
 interface LedgerEntry {
     date: string;
@@ -86,8 +67,19 @@ export class AeraApp extends LitElement {
 
   async connectedCallback() {
     super.connectedCallback()
-    this.greeting = JSON.stringify(await window.api.createEntry())
-    this.allData = await window.api.getAll()
+    this.greeting = JSON.stringify(await window.ledgerApi.createEntry({
+      id: -1,
+      amount: 100,
+      date: "2026-11-23",
+      check_number: "1111",
+      checkbook: "checkbook",
+      category: "category",
+      subcategory: "subcategory",
+      itemization: "itemization",
+      notes: "note"
+    }))
+    console.log(this.greeting);
+    this.allData = await window.ledgerApi.getAll()
   }
 
   render() {
@@ -104,6 +96,9 @@ export class AeraApp extends LitElement {
     @change=${() => {}}>
     </autocomplete-input>
 
+    <date-input
+    .year=${2026}>
+    </date-input>
 
     <notes-input
     .value=${this.notes}

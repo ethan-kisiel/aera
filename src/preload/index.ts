@@ -1,11 +1,23 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 
 // Custom APIs for renderer
-const api = {
-  fetchGreeting: () => ipcRenderer.invoke('get-native-greeting'),
-  createEntry: () => ipcRenderer.invoke('create-entry'),
-  getAll: () => ipcRenderer.invoke('get-all')
+const ledgerApi = {
+  createEntry: (entry: Entry): Promise<Entry | undefined> =>
+    ipcRenderer.invoke('ledger:create-entry', entry),
+
+  getById: (id: number): Promise<Entry | undefined> =>
+    ipcRenderer.invoke('ledger:get-by-id', id),
+
+  getAll: (sortConfig?: SortConfig): Promise<Entry[]> =>
+    ipcRenderer.invoke('ledger:get-all', sortConfig),
+
+  updateEntry: (entry: Entry): Promise<Entry | undefined> =>
+    ipcRenderer.invoke('ledger:update-entry', entry),
+
+  search: (searchFilter: EntrySearchFilter, sortConfig?: SortConfig): Promise<Entry[]> =>
+    ipcRenderer.invoke('ledger:search', searchFilter, sortConfig),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -14,7 +26,7 @@ const api = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('ledgerApi', ledgerApi)
   } catch (error) {
     console.error(error)
   }

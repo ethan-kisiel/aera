@@ -1,15 +1,74 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
+import { app, shell, screen, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 
-const ledgerAddon = require(join(__dirname, '../../build/Release/ledger_addon.node'))
+type LedgerAddon = typeof import('*/ledger_addon.node');
+
+const ledgerAddon: LedgerAddon = require(
+  process.env.NODE_ENV === 'development'
+    ? path.join(__dirname, '../../build/Release/ledger_addon.node')
+    : path.join(process.resourcesPath, 'ledger_addon.node')
+);
+
+export function registerLedgerIpcHandlers(): void {
+  // 1. Create Entry
+  ipcMain.handle(
+    'ledger:create-entry',
+    async (_event: IpcMainInvokeEvent, entry: Entry): Promise<Entry | undefined> => {
+      return ledgerAddon.createEntry(entry);
+    }
+  );
+
+  // 2. Get By ID
+  ipcMain.handle(
+    'ledger:get-by-id',
+    async (_event: IpcMainInvokeEvent, id: number): Promise<Entry | undefined> => {
+      return ledgerAddon.getById(id);
+    }
+  );
+
+  // 3. Get All
+  ipcMain.handle(
+    'ledger:get-all',
+    async (
+      _event: IpcMainInvokeEvent,
+      sortConfig?: SortConfig
+    ): Promise<Entry[]> => {
+      return ledgerAddon.getAll(sortConfig);
+    }
+  );
+
+  // 4. Update Entry
+  ipcMain.handle(
+    'ledger:update-entry',
+    async (_event: IpcMainInvokeEvent, entry: Entry): Promise<Entry | undefined> => {
+      return ledgerAddon.updateEntry(entry);
+    }
+  );
+
+  // 5. Search
+  ipcMain.handle(
+    'ledger:search',
+    async (
+      _event: IpcMainInvokeEvent,
+      searchFilter: EntrySearchFilter,
+      sortConfig?: SortConfig
+    ): Promise<Entry[]> => {
+      return ledgerAddon.search(searchFilter, sortConfig);
+    }
+  );
+}
 
 function createWindow(): void {
   // Create the browser window.
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: width,
+    height: height,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -57,22 +116,7 @@ app.whenReady().then(() => {
   /*
     NATIVE BINDINGS
   */
-  let year = 2026
-  ipcMain.handle('get-native-greeting', () => ledgerAddon.status({ name: "balls"}))
-  ipcMain.handle('create-entry', () => ledgerAddon.createEntry({
-    id: -1,
-    amount: 100,
-    date: `01/22/${year++}`,
-    check_number: '',
-    checkbook: 'checkbook',
-    category: 'category',
-    subcategory: 'subcategory',
-    itemization: 'itemization',
-    notes: 'notes notes notes',
-  }));
-
-  ipcMain.handle('get-all', () => ledgerAddon.getAll({ column: 'date', descending: true}));
-
+  registerLedgerIpcHandlers();
   createWindow()
 
   app.on('activate', function () {

@@ -131,7 +131,7 @@ export class AutocompleteInput extends LitElement {
 
             color: #9ca3af;
 
-            z-index: 0;
+            z-index: 1000;
         }
 
         .ghost-prefix {
@@ -156,7 +156,7 @@ export class AutocompleteInput extends LitElement {
             border: 1px solid #d5d9de;
             border-radius: 7px;
 
-            background: transparent;
+            background: #ffffff;
             color: #1f2937;
 
             font: inherit;
@@ -240,7 +240,6 @@ export class AutocompleteInput extends LitElement {
     `;
 
     protected render() {
-        const suggestion = this._suggestion;
         const ghostText = this._ghostText;
 
         return html`
