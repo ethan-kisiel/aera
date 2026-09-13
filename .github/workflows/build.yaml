@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build (\(${{ matrix.os }} -\)${{ matrix.arch }})
+    name: Build ${{ matrix.os }}-${{ matrix.arch }})
     runs-on: ${{ matrix.os }}
     
     # Required permission for electron-builder to upload to GitHub Releases
@@ -49,7 +49,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Build Native Addon (${{ matrix.arch }})
+      - name: Build Native Addon ${{ matrix.arch }}
         run: npm run build:native -- --arch=${{ matrix.arch }}
 
       - name: Build App Assets
