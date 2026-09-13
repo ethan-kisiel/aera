@@ -3,6 +3,7 @@
     {
       "target_name": "ledger_addon",
       "sources": [ 
+        "src/native/src/sqlite3.c",
         "src/native/addon.cc",
         "<!@(node -p \"require('fs').readdirSync('src/native/src/core').filter(f => f.endsWith('.cc') || f.endsWith('.cpp')).map(f => 'src/native/src/core/' + f).join(' ')\")",
         "<!@(node -p \"require('fs').readdirSync('src/native/src/ledger').filter(f => f.endsWith('.cc') || f.endsWith('.cpp')).map(f => 'src/native/src/ledger/' + f).join(' ')\")"
