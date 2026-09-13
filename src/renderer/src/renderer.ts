@@ -1,10 +1,12 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import '../components/autocomplete-input'
-import '../components/notes-input'
-import '../components/simple-table'
-import '../components/date-input'
-import { TableColumn } from '../components/simple-table'
+import './components/autocomplete-input'
+import './components/notes-input'
+import './components/simple-table'
+import './components/date-input'
+import './components/money-input'
+import './components/year-selector'
+import { TableColumn } from './components/simple-table'
 import { Entry } from '../../types/shared-types'
 
 
@@ -62,6 +64,15 @@ export class AeraApp extends LitElement {
   private category = "";
   private notes = "";
 
+  private _years = [
+    '2026',
+    '2025',
+    '2024',
+    '2023',
+  ];
+
+  private _selectedYear = '2026';
+
   static styles = css`
   `
 
@@ -84,9 +95,6 @@ export class AeraApp extends LitElement {
 
   render() {
     return html`
-      <h1>Lit + Electron + C++</h1>
-      <p>Native response: <strong>${this.greeting}</strong></p>
-      
     <autocomplete-input
     .items=${this.categories}
     .value=${this.category}
@@ -100,6 +108,8 @@ export class AeraApp extends LitElement {
     .year=${2026}>
     </date-input>
 
+    <money-input></money-input>
+    
     <notes-input
     .value=${this.notes}
     .maxLength=${50}
@@ -110,6 +120,12 @@ export class AeraApp extends LitElement {
     .columns=${columns}
     @row-focus=${() => {}}
     @row-delete=${() => {}}></simple-table>
+    <year-selector
+    .years=${this._years}
+    .selectedYear=${this._selectedYear}
+    @year-change=${() => {}}
+    @year-add=${() => {}}
+    ></year-selector>
     `
   }
 }
