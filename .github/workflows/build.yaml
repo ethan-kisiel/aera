@@ -1,0 +1,67 @@
+name: Build & Package
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (\({{ matrix.os }} -\){{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: x64
+            target_flag: --win
+          - os: macos-13 # Intel x64 macOS runner
+            arch: x64
+            target_flag: --mac --x64
+          - os: macos-latest # Apple Silicon arm64 macOS runner
+            arch: arm64
+            target_flag: --mac --arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Setup C++ Build Tools (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Native Addon (${{ matrix.arch }})
+        run: npm run build:native -- --arch=${{ matrix.arch }}
+
+      - name: Build App Assets
+        run: npm run build
+
+      - name: Package Application
+        run: npx electron-builder ${{ matrix.target_flag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-\({{ matrix.os }}-\){{ matrix.arch }}
+          path: |
+            dist/*.exe
+            dist/*.msi
+            dist/*.dmg
+            dist/*.zip
+            !dist/*.blockmap
+          retention-days: 7

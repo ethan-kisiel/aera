@@ -6,11 +6,7 @@ import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 
 type LedgerAddon = typeof import('*/ledger_addon.node');
 
-const ledgerAddon: LedgerAddon = require(
-  process.env.NODE_ENV === 'development'
-    ? path.join(__dirname, '../../build/Release/ledger_addon.node')
-    : path.join(process.resourcesPath, 'ledger_addon.node')
-);
+const ledgerAddon: LedgerAddon = require('bindings')('ledger_addon')
 
 export function registerLedgerIpcHandlers(): void {
   // 1. Create Entry
@@ -65,7 +61,7 @@ function createWindow(): void {
   // Create the browser window.
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width, height } = primaryDisplay.workAreaSize;
-  
+
   const mainWindow = new BrowserWindow({
     width: width,
     height: height,
