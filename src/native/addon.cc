@@ -1,28 +1,122 @@
 #include <napi.h>
 #include "src/ledger/ledger.hh"
 
-Napi::String GetGreeting(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
-  return Napi::String::New(env, "Hello from the C++ Backend!");
-}
-
-Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(Napi::String::New(env, "getGreeting"), Napi::Function::New(env, GetGreeting));
-  return exports;
-}
-
 class LedgerAddon : public Napi::Addon<LedgerAddon> {
   public:
     LedgerAddon(Napi::Env env, Napi::Object exports) {
       DefineAddon(exports, {
-        InstanceMethod("status", &LedgerAddon::Status),
         InstanceMethod("createEntry", &LedgerAddon::CreateEntry),
-        InstanceMethod("getAll", &LedgerAddon::GetAll)
+        InstanceMethod("getById", &LedgerAddon::GetById),
+        InstanceMethod("getAll", &LedgerAddon::GetAll),
+        InstanceMethod("updateEntry", &LedgerAddon::UpdateEntry),
+        InstanceMethod("search", &LedgerAddon::Search),
       });
     }
 
   private:
+    std::optional<std::vector<std::string>> napi_string_array_to_vector(const Napi::Array& array) {
+      uint32_t length = array.Length();
+      std::vector<std::string> vector;
+      vector.reserve(length);
+
+      for (uint32_t i = 0; i < length; i++) {
+        Napi::Value element = array[i];
+        if (element.IsNumber()) {
+          vector.push_back(element.As<Napi::String>().Utf8Value());
+        }
+      }
+
+      if (vector.size() > 0) {
+        return vector;
+      }
+      return std::nullopt;
+    }
+
+    LedgerRepository::EntrySearchFilter parse_entry_search_filter(const Napi::Object& input_object) {
+      Napi::Value current_filter;
+      
+      LedgerRepository::EntrySearchFilter search_filter {
+      };
+
+      if (input_object.Has("year")) {
+        current_filter = input_object.Get("year");
+        if (current_filter.IsString())
+        {
+          search_filter.year = current_filter.As<Napi::String>().Utf8Value();
+        }
+      }
+
+      if (input_object.Has("amount_range")) {
+        current_filter = input_object.Get("amount_range");
+        if (current_filter.IsArray()) {
+          Napi::Array amount_range = current_filter.As<Napi::Array>();
+          if (amount_range.Length() == 2) {
+            Napi::Value first, second;
+            first = amount_range[0u];
+            second = amount_range[1u];
+            if (first.IsNumber() && second.IsNumber()) {
+              search_filter.amount_range = 
+                std::pair<int64_t, int64_t> {
+                  first.As<Napi::Number>().Int64Value(),
+                  second.As<Napi::Number>().Int64Value(),
+                };
+            }
+          }
+        }
+      }
+
+      if (input_object.Has("check_numbers")) {
+        current_filter = input_object.Get("check_numbers");
+        if (current_filter.IsArray()) {
+          search_filter.check_numbers = napi_string_array_to_vector(
+            current_filter.As<Napi::Array>()
+          );
+        }
+      }
+
+      if (input_object.Has("checkbooks")) {
+        current_filter = input_object.Get("checkbooks");
+        if (current_filter.IsArray()) {
+          search_filter.check_numbers = napi_string_array_to_vector(
+            current_filter.As<Napi::Array>()
+          );
+        }
+      }
+
+      if (input_object.Has("categories")) {
+        current_filter = input_object.Get("categories");
+        if (current_filter.IsArray()) {
+          search_filter.check_numbers = napi_string_array_to_vector(
+            current_filter.As<Napi::Array>()
+          );
+        }
+      }
+
+      if (input_object.Has("subcategories")) {
+        current_filter = input_object.Get("subcategories");
+        if (current_filter.IsArray()) {
+          search_filter.check_numbers = napi_string_array_to_vector(
+            current_filter.As<Napi::Array>()
+          );
+        }
+      }
+
+      if (input_object.Has("itemizations")) {
+        current_filter = input_object.Get("itemizations");
+        if (current_filter.IsArray()) {
+          search_filter.check_numbers = napi_string_array_to_vector(
+            current_filter.As<Napi::Array>()
+          );
+        }
+      }
+
+      return search_filter;
+    }
+
     std::optional<LedgerRepository::SortConfig> parse_sort_config(const Napi::Object& input_object) {
+      if (input_object.IsNull()) {
+        return std::nullopt;
+      }
       Napi::Value column_value, descending_value;
       if (!input_object.Has("column") || !input_object.Has("descending")) {
         return std::nullopt;
@@ -188,10 +282,29 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       return get_entry_object(entry.value(), env);
     }
 
+    Napi::Value GetById(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Value input_id_value = info[0].As<Napi::Value>();
+      if (!input_id_value.IsNumber()) {
+        Napi::TypeError::New(env, 
+          "Invalid input, id must be string")
+          .ThrowAsJavaScriptException();
+        return env.Null();
+      }
+      auto entry = this->ledger_->get_by_id(input_id_value.As<Napi::Number>().Int32Value());
+      if (entry.has_value()) {
+        return get_entry_object(entry.value(), env);
+      }
+      return env.Null();
+    }
+
     Napi::Value GetAll(const Napi::CallbackInfo& info) {
       Napi::Env env = info.Env();
-      Napi::Object input_object = info[0].As<Napi::Object>();
-      auto sort_config = this->parse_sort_config(input_object);
+      std::optional<LedgerRepository::SortConfig> sort_config;
+      if (info[0].IsObject() && !info[0].IsNull()) {
+        Napi::Object input_object = info[0].As<Napi::Object>();
+        sort_config = this->parse_sort_config(input_object);
+      }
       auto entries = this->ledger_->get_all(sort_config);
       Napi::Array result = Napi::Array::New(env, entries.size());
       for (int i = 0; i < entries.size(); ++i) {
@@ -200,15 +313,46 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       return result;
     }
 
-    Napi::Value Status(const Napi::CallbackInfo& info) {
+    Napi::Value UpdateEntry(const Napi::CallbackInfo& info) {
       Napi::Env env = info.Env();
       Napi::Object input_object = info[0].As<Napi::Object>();
+      std::optional<Entry> entry = parse_entry(input_object);
 
-      if (!input_object.Has("name")) {
-        return Napi::String::New(info.Env(), "Status: NULL");
+      if (!entry.has_value()) {
+        Napi::TypeError::New(env, 
+            "Invalid Entry object")
+            .ThrowAsJavaScriptException();
+        return env.Null();
       }
+
+      entry = this->ledger_->update_entry(entry.value());
+
+      if (!entry.has_value()) {
+        Napi::TypeError::New(env, 
+            "Database entry failed")
+            .ThrowAsJavaScriptException();
+        return env.Null();
+      }
+
+      return get_entry_object(entry.value(), env);
+    }
+
+    Napi::Value Search(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      std::optional<LedgerRepository::SortConfig> sort_config;
+      Napi::Object filter_object = info[0].As<Napi::Object>();
+
+      if (info[0].IsObject() && !info[0].IsNull()) {
+        Napi::Object input_object = info[1].As<Napi::Object>();
+        sort_config = this->parse_sort_config(input_object);
+      }
+      auto entries = this->ledger_->search(this->parse_entry_search_filter(filter_object), sort_config);
       
-      return Napi::String::New(info.Env(), "Status: " + input_object.Get("name").As<Napi::String>().Utf8Value());
+      Napi::Array result = Napi::Array::New(env, entries.size());
+      for (int i = 0; i < entries.size(); ++i) {
+        result[i] = this->get_entry_object(entries[i], env);
+      }
+      return result;
     }
 
     std::unique_ptr<Ledger> ledger_ = std::make_unique<Ledger>(std::make_unique<LedgerRepository>());

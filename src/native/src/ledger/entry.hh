@@ -3,8 +3,8 @@
 #include <string>
 
 struct Entry {
-    int id;
-    long amount;
+    int32_t id;
+    int64_t amount;
     std::string date;
     std::string check_number;
     std::string checkbook;

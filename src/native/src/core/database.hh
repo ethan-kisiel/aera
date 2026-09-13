@@ -3,7 +3,7 @@
 #include "../ledger/entry.hh"
 #include <string>
 
-inline auto get_storage(const std::string db_path) {
+inline auto get_storage(const std::string& db_path) {
     using namespace sqlite_orm;
     auto storage = make_storage(db_path, 
         make_table("entries",
