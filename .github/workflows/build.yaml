@@ -19,7 +19,7 @@ jobs:
           - os: windows-latest
             arch: x64
             target_flag: --win
-          - os: macos-13 # Intel x64 macOS runner
+          - os: macos-latest # Intel x64 macOS runner
             arch: x64
             target_flag: --mac --x64
           - os: macos-latest # Apple Silicon arm64 macOS runner
