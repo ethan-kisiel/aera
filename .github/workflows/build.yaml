@@ -59,5 +59,4 @@ jobs:
         run: npx electron-builder \({{ matrix.target_flag }} --publish\){{ env.PUBLISH_FLAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Dynamically evaluate: publish if triggered by a tag, otherwise skip publishing
           PUBLISH_FLAG: ${{ startsWith(github.ref, 'refs/tags/v') && 'always' || 'never' }}
