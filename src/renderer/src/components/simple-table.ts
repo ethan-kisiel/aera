@@ -94,6 +94,8 @@ export class SimpleTable<
             border-radius: 8px;
 
             background: #ffffff;
+
+            height: 80vh;
         }
 
         table {
@@ -104,9 +106,6 @@ export class SimpleTable<
             table-layout: fixed;
         }
 
-        thead {
-            background: #f8f9fa;
-        }
 
         th {
             height: 36px;
@@ -116,6 +115,8 @@ export class SimpleTable<
             border-bottom: 1px solid #e2e5e9;
 
             color: #6b7280;
+            background: #f8f9fa;
+
 
             font-size: 11px;
             font-weight: 600;
@@ -125,6 +126,10 @@ export class SimpleTable<
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         td {

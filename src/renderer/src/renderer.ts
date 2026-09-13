@@ -1,10 +1,7 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
-import './components/autocomplete-input'
-import './components/notes-input'
+import './views/entry-input-ribbon'
 import './components/simple-table'
-import './components/date-input'
-import './components/money-input'
 import './components/year-selector'
 import { TableColumn } from './components/simple-table'
 import { Entry } from '../../types/shared-types'
@@ -51,19 +48,6 @@ export class AeraApp extends LitElement {
   @state()
   private allData: Entry[] = []
 
-  private categories = [
-    'Food',
-    'Entertainment',
-    'Housing',
-    'Insurance',
-    'Medical',
-    'Miscellaneous',
-    'Transportation',
-    'Utilities',
-  ];
-  private category = "";
-  private notes = "";
-
   private _years = [
     '2026',
     '2025',
@@ -95,38 +79,19 @@ export class AeraApp extends LitElement {
 
   render() {
     return html`
-    <h1>Aera Finance Ledger</h1>
-    <autocomplete-input
-    .items=${this.categories}
-    .value=${this.category}
-    placeholder="Category"
-    autocomplete="on"
-    @input=${() => {}}
-    @change=${() => {}}>
-    </autocomplete-input>
-
-    <date-input
-    .year=${2026}>
-    </date-input>
-
-    <money-input></money-input>
-    
-    <notes-input
-    .value=${this.notes}
-    .maxLength=${50}
-    placeholder="Optional notes..."></notes-input>
-
     <simple-table
     .rows=${this.allData}
     .columns=${columns}
     @row-focus=${() => {}}
-    @row-delete=${() => {}}></simple-table>
+    @row-delete=${() => {}}>
+    </simple-table>
     <year-selector
     .years=${this._years}
     .selectedYear=${this._selectedYear}
     @year-change=${() => {}}
     @year-add=${() => {}}
     ></year-selector>
+    <entry-input-ribbon></entry-input-ribbon>
     `
   }
 }
