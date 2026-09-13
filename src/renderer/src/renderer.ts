@@ -95,6 +95,7 @@ export class AeraApp extends LitElement {
 
   render() {
     return html`
+    <h1>Aera Finance Ledger</h1>
     <autocomplete-input
     .items=${this.categories}
     .value=${this.category}
