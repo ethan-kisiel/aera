@@ -1,6 +1,6 @@
 {
   "name": "aera",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -13,7 +13,7 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "start": "electron-vite preview",
     "dev": "electron-vite dev",
-    "build": "npm run typecheck && electron-vite build",
+    "build": "npm run typecheck && electron-vite build --mode production",
     "postinstall": "electron-builder install-app-deps",
     "build:native": "node-gyp rebuild",
     "build:unpack": "npm run build && electron-builder --dir",
