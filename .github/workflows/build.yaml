@@ -58,13 +58,6 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Setup C++ Build Tools (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Install Dependencies
-        run: npm ci
-
       - name: Download SQLite and sqlite_orm
         shell: bash
         run: |
@@ -85,6 +78,13 @@ jobs:
           
           # Cleanup
           rm -rf sqlite-amalgamation.zip sqlite-tmp
+
+      - name: Setup C++ Build Tools (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Dependencies
+        run: npm ci
 
       - name: Build Native Addon ${{ matrix.arch }}
         run: npm run build:native -- --arch=${{ matrix.arch }}
