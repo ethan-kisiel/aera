@@ -195,8 +195,11 @@ export class YearSelector extends LitElement {
             align-items: stretch;
 
             min-width: 0;
-
+            
             overflow-x: auto;
+            overflow-y: hidden;
+            
+            padding-bottom: 2px;
         }
 
         .year {

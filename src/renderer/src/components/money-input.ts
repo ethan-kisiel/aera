@@ -239,7 +239,7 @@ export class MoneyInput extends LitElement {
          * 12.5 -> 12.50
          */
         if (cents.length === 1) {
-            cents = cents.padStart(2, '0');
+            cents = cents.padEnd(2, '0');
         }
 
         /*

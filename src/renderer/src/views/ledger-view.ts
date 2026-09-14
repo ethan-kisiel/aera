@@ -186,7 +186,8 @@ export class LedgerView extends LitElement {
         }
 
         .year-selector-container {
-            flex: 0 0 auto;
+            flex: none; 
+            flex-shrink: 0;
             border-top: 1px solid var(--color-border, #d9dde3);
             background: var(--color-surface, #ffffff);
         }
