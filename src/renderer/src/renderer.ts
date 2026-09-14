@@ -87,13 +87,13 @@ export class AeraApp extends LitElement {
     }
 
     private _handleRowFocus(
-        event: CustomEvent,
+        _: CustomEvent,
     ) {
         // Open/edit the selected entry.
     }
 
     private _handleRowDelete(
-        event: CustomEvent,
+        _: CustomEvent,
     ) {
         // Handle deletion.
     }
