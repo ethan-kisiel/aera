@@ -7,3 +7,6 @@ out
 build/
 .vscode/
 **/.DS_Store
+src/native/include/sqlite_orm/sqlite_orm.h
+src/native/include/sqlite3.h
+src/native/src/sqlite3.c

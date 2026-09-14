@@ -65,6 +65,27 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Download SQLite and sqlite_orm
+        shell: bash
+        run: |
+          # Create target directories
+          mkdir -p src/native/include/sqlite_orm
+          mkdir -p src/native/src
+
+          # Download sqlite_orm.h (Latest master)
+          curl -L -o src/native/include/sqlite_orm/sqlite_orm.h https://raw.githubusercontent.com/fnc12/sqlite_orm/master/include/sqlite_orm/sqlite_orm.h
+
+          # Download official SQLite amalgamation (Update the year/version URL to match your required SQLite version)
+          curl -L -o sqlite-amalgamation.zip https://www.sqlite.org/2024/sqlite-amalgamation-3450100.zip
+          unzip -q sqlite-amalgamation.zip -d sqlite-tmp
+          
+          # Move files to their required directories
+          mv sqlite-tmp/*/sqlite3.h src/native/include/
+          mv sqlite-tmp/*/sqlite3.c src/native/src/
+          
+          # Cleanup
+          rm -rf sqlite-amalgamation.zip sqlite-tmp
+
       - name: Build Native Addon ${{ matrix.arch }}
         run: npm run build:native -- --arch=${{ matrix.arch }}
 
