@@ -48,11 +48,11 @@ std::vector<Entry> Ledger::search(
 ) {
     try {
         auto entries = this->ledger_repository_->search(search_filter, sort_config);
-
         if (entries.has_value()) {
             return entries.value();
         }
-    } catch (...) {
+    }
+    catch (...) {
     }
     return std::vector<Entry>();
 }
