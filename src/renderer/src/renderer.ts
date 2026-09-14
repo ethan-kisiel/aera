@@ -1,97 +1,100 @@
 import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import './views/entry-input-ribbon'
-import './components/simple-table'
-import './components/year-selector'
-import { TableColumn } from './components/simple-table'
-import { Entry } from '../../types/shared-types'
-
-
-interface LedgerEntry {
-    date: string;
-    category: string;
-    amount: number;
-}
-
-const columns: TableColumn<LedgerEntry>[] = [
-    {
-        key: 'date',
-        header: 'Date',
-        width: '110px',
-        getValue: (entry) => entry.date,
-    },
-
-    {
-        key: 'category',
-        header: 'Category',
-        width: '160px',
-        getValue: (entry) => entry.category,
-    },
-
-    {
-        key: 'amount',
-        header: 'Amount',
-        width: '100px',
-
-        getValue: (entry) => entry.amount,
-
-        formatValue: (value) =>
-            Number(value).toFixed(2),
-    },
-];
+import './views/ledger-view'
+import { Entry } from '../../types/shared-types';
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
-  @state()
-  private greeting = 'Loading...'
+   @state()
+    private _rows: Entry[] = [];
 
-  @state()
-  private allData: Entry[] = []
+    @state()
+    private _years = ['2026', '2025', '2024'];
 
-  private _years = [
-    '2026',
-    '2025',
-    '2024',
-    '2023',
-  ];
+    @state()
+    private _selectedYear = '2026';
 
-  private _selectedYear = '2026';
+    @state()
+    private _isEntryRibbonShown = true;
 
-  static styles = css`
-  `
 
-  async connectedCallback() {
-    super.connectedCallback()
-    this.greeting = JSON.stringify(await window.ledgerApi.createEntry({
-      id: -1,
-      amount: 100,
-      date: "2026-11-23",
-      check_number: "1111",
-      checkbook: "checkbook",
-      category: "category",
-      subcategory: "subcategory",
-      itemization: "itemization",
-      notes: "note"
-    }))
-    console.log(this.greeting);
-    this.allData = await window.ledgerApi.getAll()
-  }
+    async connectedCallback() {
+      super.connectedCallback();
+      const result = await window.ledgerApi.search({ year: this._selectedYear }, { column: 'date', descending: true})
+      console.log(result)
+      this._rows = await window.ledgerApi.search({ year: this._selectedYear }, { column: 'date', descending: true})
+    }
 
-  render() {
-    return html`
-    <simple-table
-    .rows=${this.allData}
-    .columns=${columns}
-    @row-focus=${() => {}}
-    @row-delete=${() => {}}>
-    </simple-table>
-    <year-selector
-    .years=${this._years}
-    .selectedYear=${this._selectedYear}
-    @year-change=${() => {}}
-    @year-add=${() => {}}
-    ></year-selector>
-    <entry-input-ribbon></entry-input-ribbon>
-    `
-  }
+    protected override render() {
+        return html`
+          <div class="container">
+            <ledger-view
+                .rows=${this._rows}
+                .years=${this._years}
+                .selectedYear=${this._selectedYear}
+                @year-change=${this._handleYearChange}
+                @year-add=${this._handleYearAdd}
+                @row-focus=${this._handleRowFocus}
+                @row-delete=${this._handleRowDelete}
+            ></ledger-view>
+            ${ this._isEntryRibbonShown ? 
+              html`<entry-input-ribbon @save=${this._handleAddEntry} year=${Number.parseInt(this._selectedYear)}>
+              </entry-input-ribbon>` : null}
+          </div>
+        `;
+    }
+
+    static styles = css`
+      :host {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden; 
+        box-sizing: border-box;
+      }
+
+      .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column; /* Keeps child elements neatly stacked */
+        overflow: hidden;
+      }
+    `;
+
+    private async _handleAddEntry(event: CustomEvent<{ entry: Entry}>) {
+      console.log(`submitted entry: ${event.detail.entry.date}`);
+      const createResult = await window.ledgerApi.createEntry(event.detail.entry);
+      if (createResult) {
+        this._rows = await window.ledgerApi.search({
+          year: this._selectedYear,
+        }, {column: 'date', descending: false});
+      }
+    }
+
+    private async _handleYearChange(
+        event: CustomEvent<{ year: string }>,
+    ) {
+        this._selectedYear = event.detail.year;
+        this._rows = await window.ledgerApi.search({
+          year: this._selectedYear,
+        }, {column: 'date', descending: false});
+    }
+
+    private _handleYearAdd() {
+        // Create a new year here.
+    }
+
+    private _handleRowFocus(
+        event: CustomEvent,
+    ) {
+        // Open/edit the selected entry.
+    }
+
+    private _handleRowDelete(
+        event: CustomEvent,
+    ) {
+        // Handle deletion.
+    }
 }

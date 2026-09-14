@@ -5,28 +5,35 @@ import '../components/autocomplete-input';
 import '../components/date-input';
 import '../components/money-input';
 import '../components/notes-input';
+import { Entry } from '../../../types/shared-types';
 
-export interface LedgerEntry {
-    date: string;
-    checkbook: string;
-    checkNumber: string;
-    amount: number | null;
-    category: string;
-    subCategory: string;
-    itemization: string;
-    notes: string;
-}
 
 @customElement('entry-input-ribbon')
 export class EntryInputRibbon extends LitElement {
+
+    private clearInput() {
+        this.entry = {
+            id: -1,
+            date: '',
+            checkbook: '',
+            check_number: '',
+            amount: undefined,
+            category: '',
+            subcategory: '',
+            itemization: '',
+            notes: '',
+        };
+    }
+
     @property({ type: Object })
-    public entry: LedgerEntry = {
+    public entry: Partial<Entry> & {id: number} = {
+        id: -1,
         date: '',
         checkbook: '',
-        checkNumber: '',
-        amount: null,
+        check_number: '',
+        amount: undefined,
         category: '',
-        subCategory: '',
+        subcategory: '',
         itemization: '',
         notes: '',
     };
@@ -93,8 +100,9 @@ export class EntryInputRibbon extends LitElement {
                             id="check-number"
                             type="text"
                             inputmode="numeric"
+                            placeholder="#"
                             autocomplete="off"
-                            .value=${this.entry.checkNumber}
+                            .value=${this.entry.check_number}
                             @input=${this._handleCheckNumberInput}
                         />
                     </div>
@@ -122,7 +130,7 @@ export class EntryInputRibbon extends LitElement {
                         <label>Subcategory</label>
 
                         <autocomplete-input
-                            .value=${this.entry.subCategory}
+                            .value=${this.entry.subcategory}
                             .items=${this.subCategories}
                             @input=${this._handleSubCategoryInput}
                         ></autocomplete-input>
@@ -173,7 +181,7 @@ export class EntryInputRibbon extends LitElement {
         event: CustomEvent<{ value: number | null }>,
     ): void {
         this._updateEntry({
-            amount: event.detail.value,
+            amount: event.detail.value ?? undefined,
         });
     }
 
@@ -185,7 +193,7 @@ export class EntryInputRibbon extends LitElement {
 
     private _handleCheckNumberInput(event: Event): void {
         this._updateEntry({
-            checkNumber: this._getInputValue(event),
+            check_number: this._getInputValue(event),
         });
     }
 
@@ -197,7 +205,7 @@ export class EntryInputRibbon extends LitElement {
 
     private _handleSubCategoryInput(event: Event): void {
         this._updateEntry({
-            subCategory: this._getInputValue(event),
+            subcategory: this._getInputValue(event),
         });
     }
 
@@ -222,7 +230,7 @@ export class EntryInputRibbon extends LitElement {
     }
 
     private _updateEntry(
-        changes: Partial<LedgerEntry>,
+        changes: Partial<Entry>,
     ): void {
         this.entry = {
             ...this.entry,
@@ -242,6 +250,7 @@ export class EntryInputRibbon extends LitElement {
 
     private _handleSubmit(event: SubmitEvent): void {
         event.preventDefault();
+        console.log("HANDLEING SUBMIT")
 
         if (this.disabled || !this._isValid()) {
             return;
@@ -256,6 +265,8 @@ export class EntryInputRibbon extends LitElement {
                 },
             }),
         );
+
+        this.clearInput();
     }
 
     private _handleClose(): void {
@@ -269,6 +280,7 @@ export class EntryInputRibbon extends LitElement {
 
     private _isValid(): boolean {
         return (
+            this.entry.date !== undefined &&
             this.entry.date.length > 0 &&
             this.entry.amount !== null &&
             Number.isFinite(this.entry.amount)
@@ -316,7 +328,7 @@ export class EntryInputRibbon extends LitElement {
                 minmax(140px, 1fr)
                 minmax(120px, 1.5fr);
 
-            align-items: end;
+            align-items: start;
 
             flex: 1;
             min-width: 0;
@@ -342,6 +354,11 @@ export class EntryInputRibbon extends LitElement {
             font-weight: 500;
             line-height: 1;
         }
+
+        input::placeholder {
+            color: var(--color-text-muted, #98a2b3)
+        }
+
 
         input {
             box-sizing: border-box;

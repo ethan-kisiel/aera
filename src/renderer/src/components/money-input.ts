@@ -283,24 +283,13 @@ export class MoneyInput extends LitElement {
          *
          * .50 -> 0.50
          */
-        const dollars = this._dollars.length > 0
-            ? Number(this._dollars)
-            : 0;
+        const dollars = this._dollars;
 
         const cents = this._cents.length > 0
-            ? Number(this._cents.padEnd(2, '0'))
-            : 0;
+            ? this._cents.padEnd(2, '0')
+            : '00';
 
-        if (
-            !Number.isFinite(dollars) ||
-            !Number.isFinite(cents) ||
-            cents > 99
-        ) {
-            this.invalid = true;
-            return;
-        }
-
-        const value = dollars + (cents / 100);
+        const value = Number.parseInt(`${dollars}${cents}`);
 
         if (!Number.isFinite(value)) {
             this.invalid = true;
