@@ -4,10 +4,10 @@
 class Ledger {
     public:
         Ledger(std::unique_ptr<LedgerRepository> ledger_repository);
-        // std::set<std::string> get_checkbooks() const;
-        // std::set<std::string> get_categories() const;
-        // std::set<std::string> get_subcategories() const;
-        // std::set<std::string> get_itemizations() const;
+        
+        std::vector<std::string> get_column_uniques(std::string Entry::* column);
+
+        int64_t get_entries_total(LedgerRepository::EntrySearchFilter search_filter);
 
         std::optional<Entry> create_entry(Entry& entry);
         std::optional<Entry> get_by_id(const int32_t& id);
@@ -17,6 +17,7 @@ class Ledger {
             const LedgerRepository::EntrySearchFilter& search_filter,
             const std::optional<LedgerRepository::SortConfig>& sort_config = std::nullopt
         );
+        std::optional<int32_t> delete_entry(const int32_t& id);
     
     private:
         std::unique_ptr<LedgerRepository> ledger_repository_;

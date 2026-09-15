@@ -1,4 +1,6 @@
 export interface ILedgerAPI {
+  getColumnUniques(column: string): Promise<string[] | undefined>;
+  getEntriesTotal(searchFilter: EntrySearchFilter): Promise<Number>;
   createEntry(entry: Entry): Promise<Entry?>;
   getById(id: number): Promise<Entry?>;
   getAll(sortConfig?: SortConfig): Promise<Entry[]>;

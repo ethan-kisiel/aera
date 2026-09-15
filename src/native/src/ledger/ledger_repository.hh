@@ -30,6 +30,10 @@ class LedgerRepository {
         
         LedgerRepository(const std::string& db_file = ":memory:");
 
+        std::vector<std::string> get_column_uniques(std::string Entry::* column);
+
+        int64_t get_entries_total(LedgerRepository::EntrySearchFilter search_filter);
+
         std::optional<Entry> create_entry(Entry& entry);
         std::optional<Entry> get_by_id(const int& id);
         std::optional<std::vector<Entry>> get_all(const std::optional<SortConfig>& sort_config = std::nullopt);
@@ -38,6 +42,7 @@ class LedgerRepository {
             const EntrySearchFilter& search_filter,
             const std::optional<SortConfig>& sort_config = std::nullopt
         );
+        std::optional<int32_t> delete_entry(const int32_t& id);
 
         static auto get_where_clause(const LedgerRepository::EntrySearchFilter& search_filter) {
             const std::pair<int64_t, int64_t> dummy_range{0, 0};

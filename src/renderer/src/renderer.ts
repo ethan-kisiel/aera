@@ -71,6 +71,8 @@ export class AeraApp extends LitElement {
           year: this._selectedYear,
         }, {column: 'date', descending: false});
       }
+
+      console.log(await window.ledgerApi.getColumnUniques('category'));
     }
 
     private async _handleYearChange(

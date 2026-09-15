@@ -11,6 +11,33 @@ LedgerRepository::LedgerRepository(const std::string& db_file) : db_file_(db_fil
     }
 }
 
+std::vector<std::string> LedgerRepository::get_column_uniques(std::string Entry::* column) {
+    try {
+        return this->storage_.select(sqlite_orm::distinct(column), sqlite_orm::order_by(column).asc());
+    } catch (...) {
+
+    }
+
+    return std::vector<std::string> {};
+}
+
+int64_t LedgerRepository::get_entries_total(LedgerRepository::EntrySearchFilter search_filter) {
+    try {
+        auto amount_result = this->storage_.select(
+            sqlite_orm::sum(&Entry::amount),
+            get_where_clause(search_filter)
+        );
+
+        if (!amount_result.empty() && amount_result[0]) {
+            return *amount_result[0];
+        }
+    } catch (...) {
+    }
+
+    return 0l;
+}
+
+
 std::optional<Entry> LedgerRepository::create_entry(Entry& entry) {
     try {
         auto result = this->storage_.insert(entry);
@@ -94,5 +121,22 @@ std::optional<std::vector<Entry>> LedgerRepository::search(
     catch (...) {
         return std::nullopt;
     }
+    return std::nullopt;
+}
+
+
+std::optional<int32_t> LedgerRepository::delete_entry(const int32_t& id) {
+    try {
+        this->storage_.remove<Entry>(id);
+
+        if (this->storage_.changes() > 0) {
+            return id;
+        } else {
+            return std::nullopt;
+        }
+    } catch (...) {
+
+    }
+
     return std::nullopt;
 }

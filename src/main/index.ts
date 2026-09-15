@@ -10,6 +10,20 @@ type LedgerAddon = typeof import('*/ledger_addon.node');
 const ledgerAddon: LedgerAddon = require('bindings')('ledger_addon')
 
 export function registerLedgerIpcHandlers(): void {
+  ipcMain.handle(
+    'ledger:get-column-uniques',
+    async (_event: IpcMainInvokeEvent, column: string): Promise<string[] | undefined> => {
+      return ledgerAddon.getColumnUniques(column);
+    }
+  );
+
+  ipcMain.handle(
+    'ledger:get-entries-total',
+    async (_event: IpcMainInvokeEvent, searchFilter: EntrySearchFilter): Promise<Number> => {
+      return ledgerAddon.getEntriesTotal(searchFilter);
+    }
+  );
+
   // 1. Create Entry
   ipcMain.handle(
     'ledger:create-entry',

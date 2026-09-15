@@ -6,6 +6,23 @@ Ledger::Ledger(std::unique_ptr<LedgerRepository> ledger_repository) :
 ledger_repository_(std::move(ledger_repository)) {
 }
 
+std::vector<std::string> Ledger::get_column_uniques(std::string Entry::* column) {
+    try {
+        return this->ledger_repository_->get_column_uniques(column);
+    } catch (...) {
+    }
+    return std::vector<std::string> {};
+}
+
+int64_t Ledger::get_entries_total(LedgerRepository::EntrySearchFilter search_filter) {
+    try {
+        return this->ledger_repository_->get_entries_total(search_filter);
+    } catch (...) {
+    }
+    return 0l;
+}
+
+
 std::optional<Entry> Ledger::create_entry(Entry& entry) {
     try {
         return this->ledger_repository_->create_entry(entry);
@@ -55,4 +72,12 @@ std::vector<Entry> Ledger::search(
     catch (...) {
     }
     return std::vector<Entry>();
+}
+
+std::optional<int32_t> Ledger::delete_entry(const int32_t& id) {
+    try {
+        return this->ledger_repository_->delete_entry(id);
+    } catch (...) {
+    }
+    return std::nullopt;
 }

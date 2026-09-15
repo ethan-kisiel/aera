@@ -5,6 +5,8 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
   public:
     LedgerAddon(Napi::Env env, Napi::Object exports) {
       DefineAddon(exports, {
+        InstanceMethod("getColumnUniques", &LedgerAddon::GetColumnUniques),
+        InstanceMethod("getEntriesTotal", &LedgerAddon::GetEntriesTotal),
         InstanceMethod("createEntry", &LedgerAddon::CreateEntry),
         InstanceMethod("getById", &LedgerAddon::GetById),
         InstanceMethod("getAll", &LedgerAddon::GetAll),
@@ -258,6 +260,57 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       return entry_object;
     }
 
+    Napi::Value GetColumnUniques(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Value column_value = info[0];
+
+      if (!column_value.IsString()) {
+        return env.Null();
+      }
+      auto column_string = column_value.As<Napi::String>().Utf8Value();
+      if (column_string == "checkbook") {
+        auto values = this->ledger_->get_column_uniques(&Entry::checkbook);
+        Napi::Array result = Napi::Array::New(env, values.size());
+        for (int i = 0; i < values.size(); ++i) {
+          result[i] = Napi::String::New(env, values[i]);
+        }
+        return result;
+      }
+      if (column_string == "category") {
+        auto values = this->ledger_->get_column_uniques(&Entry::category);
+        Napi::Array result = Napi::Array::New(env, values.size());
+        for (int i = 0; i < values.size(); ++i) {
+          result[i] = Napi::String::New(env, values[i]);
+        }
+        return result;
+      }
+      if (column_string == "subcategory") {
+        auto values = this->ledger_->get_column_uniques(&Entry::subcategory);
+        Napi::Array result = Napi::Array::New(env, values.size());
+        for (int i = 0; i < values.size(); ++i) {
+          result[i] = Napi::String::New(env, values[i]);
+        }
+        return result;
+      }
+      if (column_string == "itemization") {
+        auto values = this->ledger_->get_column_uniques(&Entry::itemization);
+        Napi::Array result = Napi::Array::New(env, values.size());
+        for (int i = 0; i < values.size(); ++i) {
+          result[i] = Napi::String::New(env, values[i]);
+        }
+        return result;
+      }
+      return env.Null();
+    }
+    Napi::Value GetEntriesTotal(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Object filter_object = info[0].As<Napi::Object>();
+
+      auto total = this->ledger_->get_entries_total(this->parse_entry_search_filter(filter_object));
+    
+      return Napi::Number::New(env, total);
+    }
+
     Napi::Value CreateEntry(const Napi::CallbackInfo& info) {
       Napi::Env env = info.Env();
       Napi::Object input_object = info[0].As<Napi::Object>();
@@ -342,7 +395,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       std::optional<LedgerRepository::SortConfig> sort_config;
       Napi::Object filter_object = info[0].As<Napi::Object>();
 
-      if (info[0].IsObject() && !info[0].IsNull()) {
+      if (info[1].IsObject() && !info[1].IsNull()) {
         Napi::Object input_object = info[1].As<Napi::Object>();
         sort_config = this->parse_sort_config(input_object);
       }
