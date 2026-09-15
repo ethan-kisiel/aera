@@ -183,6 +183,7 @@ export class LedgerView extends LitElement {
             flex: 1 1 auto;
             min-height: 0;
             overflow: auto;
+            padding: 1%;
         }
 
         .year-selector-container {
