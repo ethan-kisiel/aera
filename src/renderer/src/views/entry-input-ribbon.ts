@@ -9,19 +9,6 @@ import { Entry } from '../../../types/shared-types'
 
 @customElement('entry-input-ribbon')
 export class EntryInputRibbon extends LitElement {
-  private clearInput() {
-    this.entry = {
-      id: -1,
-      date: '',
-      checkbook: '',
-      check_number: '',
-      amount: null,
-      category: '',
-      subcategory: '',
-      itemization: '',
-      notes: ''
-    }
-  }
 
   @property({ type: Object })
   public entry: Omit<Entry, 'amount'> & { amount: number | null } = {
@@ -249,8 +236,6 @@ export class EntryInputRibbon extends LitElement {
         }
       })
     )
-
-    this.clearInput()
   }
 
   private _handleClose(): void {

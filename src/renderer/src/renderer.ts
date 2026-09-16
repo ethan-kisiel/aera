@@ -42,6 +42,19 @@ export class AeraApp extends LitElement {
   @state()
   private _newYear: number | null = null;
 
+  @state()
+  private _selectedEntry: Omit<Entry, 'amount'> & { amount: number | null } = {
+    id: -1,
+    date: '',
+    checkbook: '',
+    check_number: '',
+    amount: null,
+    category: '',
+    subcategory: '',
+    itemization: '',
+    notes: ''
+  };
+
   private async updateDropdownSets() {
     this._checkbooks = (await window.ledgerApi.getColumnUniques('checkbook')) ?? []
     this._categories = (await window.ledgerApi.getColumnUniques('category')) ?? []
@@ -87,7 +100,9 @@ export class AeraApp extends LitElement {
           this._isEntryRibbonShown
             ? html`<entry-input-ribbon
                 @save=${this._handleAddEntry}
+                @close=${this._clearInput}
                 year=${Number.parseInt(this._selectedYear)}
+                .entry=${this._selectedEntry}
                 .checkbooks=${this._checkbooks}
                 .categories=${this._categories}
                 .subcategories=${this._subcategories}
@@ -185,20 +200,21 @@ export class AeraApp extends LitElement {
   `
 
   private async _handleAddEntry(event: CustomEvent<{ entry: Entry }>) {
-    console.log(`submitted entry: ${event.detail.entry.date}`)
-    const createResult = await window.ledgerApi.createEntry(event.detail.entry)
-    if (createResult) {
-      this._rows = await window.ledgerApi.search(
-        {
-          year: this._selectedYear
-        },
-        { column: 'date', descending: false }
-      )
-
-      this.updateDropdownSets()
+    if (event.detail.entry.id < 1) {
+      const createResult = await window.ledgerApi.createEntry(event.detail.entry);
+      if (createResult) {
+        this.refreshTableData()
+        this.updateDropdownSets()
+        this._clearInput();
+      }
     }
-
-    console.log(await window.ledgerApi.getColumnUniques('category'))
+    
+    const updateResult = await window.ledgerApi.updateEntry(event.detail.entry);
+    if (updateResult) {
+      this.refreshTableData()
+      this.updateDropdownSets()
+      this._clearInput();
+    }
   }
 
   private async _handleYearChange(event: CustomEvent<{ year: string }>) {
@@ -216,11 +232,26 @@ export class AeraApp extends LitElement {
     this._isYearModalShown = true;
   }
 
-  private _handleRowFocus(_: CustomEvent) {
+  private _handleRowFocus(event: CustomEvent<{row: Entry}>) {
     // Open/edit the selected entry.
+    this._selectedEntry = event.detail.row;
   }
 
-  private _handleRowDelete(_: CustomEvent) {
+  private _handleRowDelete(_: CustomEvent<{row: Entry}>) {
     // Handle deletion.
+  }
+
+  private _clearInput() {
+    this._selectedEntry = {
+      id: -1,
+      date: '',
+      checkbook: '',
+      check_number: '',
+      amount: null,
+      category: '',
+      subcategory: '',
+      itemization: '',
+      notes: ''
+    }
   }
 }

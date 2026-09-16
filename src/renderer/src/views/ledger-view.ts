@@ -9,17 +9,6 @@ import '../components/year-selector'
 import type { TableColumn } from '../components/simple-table'
 import { Entry } from '../../../types/shared-types'
 
-export interface LedgerRow {
-  id: string
-  date: string
-  checkbook: string
-  checkNumber: string
-  amount: number | null
-  category: string
-  subCategory: string
-  itemization: string
-  notes: string
-}
 
 @customElement('ledger-view')
 export class LedgerView extends LitElement {
@@ -142,7 +131,7 @@ export class LedgerView extends LitElement {
     )
   }
 
-  private _handleRowFocus(event: CustomEvent<{ row: LedgerRow }>) {
+  private _handleRowFocus(event: CustomEvent<{ row: Entry }>) {
     this.dispatchEvent(
       new CustomEvent('row-focus', {
         detail: event.detail,
@@ -152,7 +141,7 @@ export class LedgerView extends LitElement {
     )
   }
 
-  private _handleRowDelete(event: CustomEvent<{ row: LedgerRow }>) {
+  private _handleRowDelete(event: CustomEvent<{ row: Entry }>) {
     this.dispatchEvent(
       new CustomEvent('row-delete', {
         detail: event.detail,

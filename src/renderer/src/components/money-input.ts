@@ -365,7 +365,7 @@ export class MoneyInput extends LitElement {
          * 12.3 -> 12.299999...
          */
         const totalCents = Math.round(
-            this.value * 100,
+            this.value,
         );
 
         const dollars = Math.floor(
