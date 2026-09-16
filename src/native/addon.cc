@@ -5,6 +5,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
   public:
     LedgerAddon(Napi::Env env, Napi::Object exports) {
       DefineAddon(exports, {
+        InstanceMethod("initDb", &LedgerAddon::InitializeDatabase),
         InstanceMethod("getColumnUniques", &LedgerAddon::GetColumnUniques),
         InstanceMethod("getUniqueYears", &LedgerAddon::GetUniqueYears),
         InstanceMethod("getEntriesTotal", &LedgerAddon::GetEntriesTotal),
@@ -420,7 +421,22 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       return result;
     }
 
-    std::unique_ptr<Ledger> ledger_ = std::make_unique<Ledger>(std::make_unique<LedgerRepository>());
+    Napi::Value InitializeDatabase(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Value db_path = info[0];
+
+      if (db_path.IsString()) {
+        this->ledger_ = std::make_unique<Ledger>(std::make_unique<LedgerRepository>(
+          db_path.As<Napi::String>().Utf8Value()
+        ));
+      } else {
+        this->ledger_ = std::make_unique<Ledger>(std::make_unique<LedgerRepository>());
+      }
+
+      return Napi::Boolean::New(env, true);
+    }
+
+    std::unique_ptr<Ledger> ledger_;
 };
 
 // NODE_API_MODULE(native_addon, Init)

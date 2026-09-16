@@ -1,5 +1,5 @@
 import { app, shell, screen, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
@@ -129,7 +129,14 @@ app.whenReady().then(() => {
   /*
     NATIVE BINDINGS
   */
-  registerLedgerIpcHandlers()
+
+  // init db
+  const userDataPath = app.getPath('userData')
+  const dbPath = path.join(userDataPath, 'aera.sqlite')
+  const result = ledgerAddon.initDb(process.env.NODE_ENV === 'production' ? dbPath : ':memory:')
+  if (result) {
+    registerLedgerIpcHandlers()
+  }
   createWindow()
 
   app.on('activate', function () {

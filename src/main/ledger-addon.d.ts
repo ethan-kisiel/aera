@@ -1,6 +1,7 @@
 import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 
 declare module '*/ledger_addon.node' {
+  export function initDb(path: string): boolean
   export function getColumnUniques(column: string): string[] | undefined
   export function getUniqueYears(): string[]
   export function getEntriesTotal(searchFilter: EntrySearchFilter): number
