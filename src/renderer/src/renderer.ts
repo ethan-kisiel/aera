@@ -60,6 +60,9 @@ export class AeraApp extends LitElement {
     super.connectedCallback()
     // setup years
     this._years = await window.ledgerApi.getUniqueYears();
+    if (this._years.length == 0) {
+      this._years = [this._selectedYear]
+    }
     this._selectedYear = this._years.length > 0 ? this._years[this._years.length -1] : this._selectedYear;
 
     // setup rows
@@ -93,7 +96,6 @@ export class AeraApp extends LitElement {
               </entry-input-ribbon>`
             : null
         }
-
         ${
           this._isYearModalShown ? html`
           <app-modal
@@ -126,8 +128,6 @@ export class AeraApp extends LitElement {
                     }
 
                     this._years.push(`${this._newYear}`);
-                    console.log(this._years);
-                    console.log(`${this._newYear}`)
                     this._selectedYear = `${this._newYear}`;
                     
                     this.refreshTableData();

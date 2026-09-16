@@ -85,6 +85,7 @@ export class EntryInputRibbon extends LitElement {
               .value=${this.entry.checkbook}
               .items=${this.checkbooks}
               @input=${this._handleCheckbookInput}
+              @change=${this._handleCheckbookInput}
             ></autocomplete-input>
           </div>
 
@@ -118,6 +119,7 @@ export class EntryInputRibbon extends LitElement {
               .value=${this.entry.category}
               .items=${this.categories}
               @input=${this._handleCategoryInput}
+              @change=${this._handleCategoryInput}
             ></autocomplete-input>
           </div>
 
@@ -128,6 +130,7 @@ export class EntryInputRibbon extends LitElement {
               .value=${this.entry.subcategory}
               .items=${this.subcategories}
               @input=${this._handleSubCategoryInput}
+              @change=${this._handleSubCategoryInput}
             ></autocomplete-input>
           </div>
 
@@ -138,6 +141,7 @@ export class EntryInputRibbon extends LitElement {
               .value=${this.entry.itemization}
               .items=${this.itemizations}
               @input=${this._handleItemizationInput}
+              @change=${this._handleItemizationInput}
             ></autocomplete-input>
           </div>
 

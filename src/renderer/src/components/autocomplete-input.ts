@@ -430,6 +430,7 @@ export class AutocompleteInput extends LitElement {
 
   private _select(item: string): void {
     this.value = item
+    this.requestUpdate()
 
     this._isOpen = false
     this._highlightedIndex = 0
@@ -440,7 +441,5 @@ export class AutocompleteInput extends LitElement {
         composed: true
       })
     )
-
-    this.requestUpdate()
   }
 }

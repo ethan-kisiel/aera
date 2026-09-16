@@ -10,7 +10,8 @@ export class DateInput extends LitElement {
      *
      *     2026-09-12
      *
-     * An empty string represents an incomplete date.
+     * The public value is only updated when a complete,
+     * valid date has been committed.
      */
     @property({ type: String })
     public value = '';
@@ -34,6 +35,12 @@ export class DateInput extends LitElement {
 
     @state()
     private _dayValue = '';
+
+    /**
+     * Prevents our own value changes from being interpreted
+     * as external changes that should replace the editing draft.
+     */
+    private _internalValueChange = false;
 
     public static styles = css`
         :host {
@@ -142,7 +149,14 @@ export class DateInput extends LitElement {
     protected willUpdate(
         changedProperties: Map<string | symbol, unknown>,
     ): void {
-        if (changedProperties.has('value')) {
+        if (
+            changedProperties.has('value') &&
+            !this._internalValueChange
+        ) {
+            this._syncFromValue();
+        }
+
+        if (changedProperties.has('year')) {
             this._syncFromValue();
         }
     }
@@ -153,6 +167,7 @@ export class DateInput extends LitElement {
                 class=${`container ${
                     this.invalid ? 'invalid' : ''
                 }`}
+                @focusout=${this._handleFocusOut}
             >
                 <input
                     class="month"
@@ -193,13 +208,8 @@ export class DateInput extends LitElement {
         let value = this._sanitize(input.value);
 
         /*
-         * A month beginning with 2-9 can only be a single-digit
-         * month, so automatically prefix it with zero.
-         *
-         *     1  -> wait for another digit
-         *     0  -> wait for another digit
-         *     2  -> 02
-         *     9  -> 09
+         * 2-9 can only represent a single-digit month,
+         * so immediately convert it to 02-09.
          */
         if (
             value.length === 1 &&
@@ -208,10 +218,13 @@ export class DateInput extends LitElement {
         ) {
             value = `0${value}`;
 
+            this._monthValue = value;
             input.value = value;
 
-            this._monthValue = value;
-            this.monthComplete();
+            this._updateValidity();
+            this._commitIfValid();
+            this._focusDay();
+
             return;
         }
 
@@ -219,19 +232,21 @@ export class DateInput extends LitElement {
         this._monthValue = value;
 
         /*
-         * Automatically complete a single-digit month when
-         * the user types 0X or 1X.
+         * 01-09 and 10-12 are complete months.
          */
         if (value.length === 2) {
             const month = Number(value);
 
             if (month >= 1 && month <= 12) {
-                this.monthComplete();
+                this._updateValidity();
+                this._commitIfValid();
+                this._focusDay();
+
+                return;
             }
         }
 
         this._updateValidity();
-        this._updateIsoValue();
     }
 
     private _handleDayInput(event: Event): void {
@@ -240,11 +255,8 @@ export class DateInput extends LitElement {
         let value = this._sanitize(input.value);
 
         /*
-         * A day beginning with 4-9 can only be a single-digit
-         * day, so prefix it with zero.
-         *
-         *     4 -> 04
-         *     9 -> 09
+         * 4-9 can only represent a single-digit day,
+         * so immediately convert it to 04-09.
          */
         if (
             value.length === 1 &&
@@ -255,10 +267,12 @@ export class DateInput extends LitElement {
         ) {
             value = `0${value}`;
 
+            this._dayValue = value;
             input.value = value;
 
-            this._dayValue = value;
-            this.dayComplete();
+            this._updateValidity();
+            this._commitIfValid();
+
             return;
         }
 
@@ -266,53 +280,84 @@ export class DateInput extends LitElement {
         this._dayValue = value;
 
         /*
-         * Once we have two digits, complete the day.
-         *
-         * Importantly, this does NOT require a month to
-         * already exist. The day can be entered first.
+         * Any two-digit day is potentially complete.
          */
         if (value.length === 2) {
             const day = Number(value);
 
             if (day >= 1 && day <= 31) {
-                this.dayComplete();
+                this._updateValidity();
+                this._commitIfValid();
+
+                return;
             }
         }
 
         this._updateValidity();
-        this._updateIsoValue();
     }
 
-    private monthComplete(): void {
-        const month = Number(this._monthValue);
+    private _handleFocusOut(event: FocusEvent): void {
+        const nextTarget = event.relatedTarget;
 
-        if (month < 1 || month > 12) {
-            this._updateValidity();
+        /*
+         * Only normalize when focus is leaving the entire
+         * date-input component, not when moving between
+         * month and day.
+         */
+        if (
+            nextTarget instanceof Node &&
+            this.contains(nextTarget)
+        ) {
             return;
         }
 
-        this._updateValidity();
-        this._updateIsoValue();
-        this._focusDay();
-    }
+        let changed = false;
 
-    private dayComplete(): void {
-        const day = Number(this._dayValue);
+        /*
+         * Normalize a one-digit month.
+         *
+         * 1 -> 01
+         * 2 -> 02
+         *
+         * This intentionally happens even though the field
+         * wasn't considered "complete" during typing.
+         */
+        if (
+            this._monthValue.length === 1 &&
+            this._monthValue !== '0'
+        ) {
+            this._monthValue =
+                this._monthValue.padStart(2, '0');
 
-        if (day < 1 || day > 31) {
-            this._updateValidity();
-            return;
+            changed = true;
         }
 
         /*
-         * If a month has already been supplied, validate the
-         * day against the actual number of days in that month.
+         * Normalize a one-digit day.
          *
-         * If the month hasn't been supplied yet, don't reject
-         * the day. This allows DD to be entered first.
+         * 1 -> 01
+         * 2 -> 02
+         * 3 -> 03
          */
-        this._updateValidity();
-        this._updateIsoValue();
+        if (
+            this._dayValue.length === 1 &&
+            this._dayValue !== '0'
+        ) {
+            this._dayValue =
+                this._dayValue.padStart(2, '0');
+
+            changed = true;
+        }
+
+        if (changed) {
+            this._updateValidity();
+        }
+
+        /*
+         * Once focus leaves the component, try to commit
+         * whatever valid date is present.
+         */
+        this._commitIfValid();
     }
 
     private _handleMonthKeyDown(event: KeyboardEvent): void {
@@ -321,16 +366,8 @@ export class DateInput extends LitElement {
             event.key === 'Enter'
         ) {
             event.preventDefault();
-
             this._focusDay();
 
-            return;
-        }
-
-        if (
-            event.key === 'ArrowDown' ||
-            event.key === 'ArrowUp'
-        ) {
             return;
         }
     }
@@ -341,7 +378,6 @@ export class DateInput extends LitElement {
             this._dayValue.length === 0
         ) {
             event.preventDefault();
-
             this._focusMonth();
 
             return;
@@ -352,7 +388,6 @@ export class DateInput extends LitElement {
             this._dayValue.length === 0
         ) {
             event.preventDefault();
-
             this._focusMonth();
 
             return;
@@ -362,15 +397,13 @@ export class DateInput extends LitElement {
             event.preventDefault();
 
             this._updateValidity();
-            this._updateIsoValue();
+            this._commitIfValid();
         }
     }
 
     private _focusMonth(): void {
         const input =
-            this.renderRoot.querySelector(
-                '.month',
-            );
+            this.renderRoot.querySelector('.month');
 
         if (input instanceof HTMLInputElement) {
             input.focus();
@@ -380,9 +413,7 @@ export class DateInput extends LitElement {
 
     private _focusDay(): void {
         const input =
-            this.renderRoot.querySelector(
-                '.day',
-            );
+            this.renderRoot.querySelector('.day');
 
         if (input instanceof HTMLInputElement) {
             input.focus();
@@ -426,8 +457,7 @@ export class DateInput extends LitElement {
                 : null;
 
         /*
-         * Don't mark an incomplete date invalid simply because
-         * the user hasn't finished typing it.
+         * A partially-entered value isn't invalid.
          */
         if (month === null || day === null) {
             this.invalid = false;
@@ -441,16 +471,14 @@ export class DateInput extends LitElement {
             day > this._daysInMonth();
     }
 
-    private _updateIsoValue(): void {
+    private _commitIfValid(): void {
         /*
-         * Don't produce an ISO date until both components exist.
+         * Don't commit until both fields contain two digits.
          */
         if (
             this._monthValue.length !== 2 ||
-            this._dayValue.length !== 2 ||
-            this.invalid
+            this._dayValue.length !== 2
         ) {
-            this.value = '';
             return;
         }
 
@@ -463,42 +491,49 @@ export class DateInput extends LitElement {
             day < 1 ||
             day > this._daysInMonth()
         ) {
-            this.value = '';
+            this.invalid = true;
             return;
         }
 
-        this.value =
-            `${this.year}-` +
-            `${this._monthValue}-` +
-            `${this._dayValue}`;
+        const newValue =
+            `${this.year}-${this._monthValue}-${this._dayValue}`;
+
+        /*
+         * Don't emit another change if nothing actually changed.
+         */
+        if (this.value === newValue) {
+            return;
+        }
+
+        this._internalValueChange = true;
+        this.value = newValue;
+        this._internalValueChange = false;
 
         this.dispatchEvent(
-            new CustomEvent(
-                'change',
-                {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                        value: this.value,
-                    },
+            new CustomEvent('change', {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    value: this.value,
                 },
-            ),
+            }),
         );
     }
 
     private _syncFromValue(): void {
-        /*
-         * Only accept a complete ISO date matching the
-         * currently displayed year.
-         */
         const match =
             /^(\d{4})-(\d{2})-(\d{2})$/.exec(
                 this.value,
             );
 
+        /*
+         * An empty external value means clear the draft.
+         */
         if (!match) {
             this._monthValue = '';
             this._dayValue = '';
+            this.invalid = false;
+
             return;
         }
 
@@ -510,13 +545,13 @@ export class DateInput extends LitElement {
         ] = match;
 
         /*
-         * The year is controlled by the component, so don't
-         * populate MM/DD from an ISO value belonging to
-         * another year.
+         * The year is controlled by the component.
          */
         if (Number(year) !== this.year) {
             this._monthValue = '';
             this._dayValue = '';
+            this.invalid = false;
+
             return;
         }
 
