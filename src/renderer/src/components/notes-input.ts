@@ -139,8 +139,8 @@ export class NotesInput extends LitElement {
     this.dispatchEvent(
       new Event('input', {
         bubbles: true,
-        composed: true,
-      }),
+        composed: true
+      })
     )
   }
 
@@ -152,8 +152,8 @@ export class NotesInput extends LitElement {
     this.dispatchEvent(
       new Event('change', {
         bubbles: true,
-        composed: true,
-      }),
+        composed: true
+      })
     )
   }
 }

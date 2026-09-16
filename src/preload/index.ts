@@ -24,7 +24,7 @@ const ledgerApi = {
     ipcRenderer.invoke('ledger:update-entry', entry),
 
   search: (searchFilter: EntrySearchFilter, sortConfig?: SortConfig): Promise<Entry[]> =>
-    ipcRenderer.invoke('ledger:search', searchFilter, sortConfig),
+    ipcRenderer.invoke('ledger:search', searchFilter, sortConfig)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

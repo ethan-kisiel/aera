@@ -52,7 +52,7 @@ export class AeraApp extends LitElement {
     category: '',
     subcategory: '',
     itemization: '',
-    notes: '',
+    notes: ''
   }
 
   private async updateDropdownSets(): Promise<void> {
@@ -65,7 +65,7 @@ export class AeraApp extends LitElement {
   private async refreshTableData(): Promise<void> {
     this._rows = await window.ledgerApi.search(
       { year: this._selectedYear },
-      { column: 'date', descending: true },
+      { column: 'date', descending: true }
     )
   }
 
@@ -128,13 +128,13 @@ export class AeraApp extends LitElement {
                   .actions=${[
                     {
                       id: 'cancel',
-                      label: 'Cancel',
+                      label: 'Cancel'
                     } as ModalAction,
                     {
                       id: 'add',
                       label: 'Add year',
-                      variant: 'primary',
-                    } as ModalAction,
+                      variant: 'primary'
+                    } as ModalAction
                   ]}
                   @modal-action=${(event: CustomEvent<{ action: string }>) => {
                     if (event.detail.action == 'cancel') {
@@ -224,9 +224,9 @@ export class AeraApp extends LitElement {
     this._selectedYear = event.detail.year
     this._rows = await window.ledgerApi.search(
       {
-        year: this._selectedYear,
+        year: this._selectedYear
       },
-      { column: 'date', descending: false },
+      { column: 'date', descending: false }
     )
   }
 
@@ -255,7 +255,7 @@ export class AeraApp extends LitElement {
       category: '',
       subcategory: '',
       itemization: '',
-      notes: '',
+      notes: ''
     }
   }
 }

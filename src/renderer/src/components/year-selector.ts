@@ -33,9 +33,9 @@ export class YearSelector extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          year,
-        },
-      }),
+          year
+        }
+      })
     )
   }
 
@@ -43,8 +43,8 @@ export class YearSelector extends LitElement {
     this.dispatchEvent(
       new CustomEvent('year-add', {
         bubbles: true,
-        composed: true,
-      }),
+        composed: true
+      })
     )
   }
 
@@ -97,7 +97,7 @@ export class YearSelector extends LitElement {
               >
                 ${year}
               </button>
-            `,
+            `
           )}
         </div>
       </nav>

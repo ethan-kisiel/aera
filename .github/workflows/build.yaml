@@ -10,9 +10,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+      name: Run ESLint
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: 22
+            cache: 'npm'
+
+        - name: Install Dependencies
+          run: npm ci
+
+        - name: Run Linter
+          # Change this to `npx eslint .` if you don't have a "lint" script in your package.json
+          run: npm run lint
   # 1. NEW JOB: Create the release first to prevent race conditions
   prepare-release:
     name: Prepare Release
+    needs: lint
     runs-on: ubuntu-latest
     permissions:
       contents: write

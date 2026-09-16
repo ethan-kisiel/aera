@@ -12,7 +12,6 @@
   overflow: hidden;
 }
 
-
 /* ==========================================================================
    Main Ledger
    ========================================================================== */
@@ -26,7 +25,6 @@
 
   padding: 20px 24px 0;
 }
-
 
 /* ==========================================================================
    Ledger Header
@@ -63,7 +61,6 @@
   color: var(--color-text);
 }
 
-
 /* ==========================================================================
    Table Container
    ========================================================================== */
@@ -81,7 +78,6 @@
 
   box-shadow: var(--shadow-sm);
 }
-
 
 /* ==========================================================================
    Ledger Table
@@ -143,7 +139,6 @@
   border-bottom: none;
 }
 
-
 /* Empty rows */
 
 .ledger tbody tr.empty-row td {
@@ -154,7 +149,6 @@
   background: transparent;
 }
 
-
 /* Amount column */
 
 .ledger th.amount,
@@ -162,7 +156,6 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-
 
 /* ==========================================================================
    Column Sizing
@@ -203,7 +196,6 @@
   width: 170px;
 }
 
-
 /* ==========================================================================
    Entry Editor
    ========================================================================== */
@@ -217,10 +209,8 @@
 
   border-top: 1px solid var(--color-border);
 
-  box-shadow:
-    0 -3px 12px rgba(0, 0, 0, 0.025);
+  box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.025);
 }
-
 
 /* Editor header */
 
@@ -250,7 +240,6 @@
   color: var(--color-text-secondary);
   font-weight: 500;
 }
-
 
 /* ==========================================================================
    Form Layout
@@ -287,7 +276,6 @@
   font-size: 12px;
   font-weight: 500;
 }
-
 
 /* ==========================================================================
    Inputs
@@ -342,10 +330,8 @@ select:focus,
 textarea:focus {
   border-color: var(--color-primary);
 
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
-
 
 /* ==========================================================================
    Select
@@ -371,7 +357,6 @@ select {
   background-repeat: no-repeat;
 }
 
-
 /* ==========================================================================
    Amount
    ========================================================================== */
@@ -379,7 +364,6 @@ select {
 .amount-input {
   font-variant-numeric: tabular-nums;
 }
-
 
 /* ==========================================================================
    Buttons
@@ -413,7 +397,6 @@ button {
     transform var(--transition-fast);
 }
 
-
 /* Primary */
 
 .button-primary,
@@ -421,8 +404,7 @@ button.create {
   background: var(--color-primary);
   color: #ffffff;
 
-  box-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .button-primary:hover,
@@ -434,7 +416,6 @@ button.create:hover {
 button.create:active {
   transform: translateY(1px);
 }
-
 
 /* Secondary */
 
@@ -451,7 +432,6 @@ button.clear {
 button.clear:hover {
   background: var(--color-surface-muted);
 }
-
 
 /* Danger */
 
@@ -471,7 +451,6 @@ button.delete:hover {
   border-color: #fca5a5;
 }
 
-
 /* Disabled */
 
 button:disabled {
@@ -484,7 +463,6 @@ button:disabled:hover {
   background: inherit;
 }
 
-
 /* ==========================================================================
    Validation
    ========================================================================== */
@@ -494,10 +472,8 @@ select.invalid,
 textarea.invalid {
   border-color: #ef4444;
 
-  box-shadow:
-    0 0 0 3px rgba(239, 68, 68, 0.08);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
 }
-
 
 /* ==========================================================================
    Status / Utility Text
@@ -514,7 +490,6 @@ textarea.invalid {
 .muted {
   color: var(--color-text-muted);
 }
-
 
 /* ==========================================================================
    Footer

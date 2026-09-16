@@ -215,7 +215,7 @@ export class SimpleTable<T extends object> extends LitElement {
         <table>
           <colgroup>
             ${this.columns.map(
-              (column) => html` <col style=${column.width ? `width: ${column.width}` : ''} /> `,
+              (column) => html` <col style=${column.width ? `width: ${column.width}` : ''} /> `
             )}
 
             <col style="width: 84px" />
@@ -299,9 +299,9 @@ export class SimpleTable<T extends object> extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          row,
-        },
-      }),
+          row
+        }
+      })
     )
   }
 
@@ -317,9 +317,9 @@ export class SimpleTable<T extends object> extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          row,
-        },
-      }),
+          row
+        }
+      })
     )
 
     this.requestUpdate()
