@@ -133,7 +133,7 @@ app.whenReady().then(() => {
   // init db
   const userDataPath = app.getPath('userData')
   const dbPath = path.join(userDataPath, 'aera.sqlite')
-  const result = ledgerAddon.initDb(process.env.NODE_ENV === 'production' ? dbPath : ':memory:')
+  const result = ledgerAddon.initDb(process.env.NODE_ENV === 'development' ? ':memory:' : dbPath)
   if (result) {
     registerLedgerIpcHandlers()
   }

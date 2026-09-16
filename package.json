@@ -1,6 +1,6 @@
 {
   "name": "aera",
-  "version": "0.1.22",
+  "version": "0.1.23",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
   "author": "example.com",
@@ -62,6 +62,18 @@
       "build/Release/*.node",
       "package.json"
     ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true,
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
     "asar": true,
     "publish": {
       "provider": "github",
