@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import '../components/autocomplete-input'
@@ -9,7 +9,6 @@ import { Entry } from '../../../types/shared-types'
 
 @customElement('entry-input-ribbon')
 export class EntryInputRibbon extends LitElement {
-
   @property({ type: Object })
   public entry: Omit<Entry, 'amount'> & { amount: number | null } = {
     id: -1,
@@ -20,7 +19,7 @@ export class EntryInputRibbon extends LitElement {
     category: '',
     subcategory: '',
     itemization: '',
-    notes: ''
+    notes: '',
   }
 
   @property({ type: Number })
@@ -41,7 +40,7 @@ export class EntryInputRibbon extends LitElement {
   @property({ type: Boolean })
   public disabled = false
 
-  protected override render() {
+  protected override render(): TemplateResult {
     return html`
       <form class="ribbon" @submit=${this._handleSubmit}>
         <button
@@ -148,49 +147,49 @@ export class EntryInputRibbon extends LitElement {
 
   private _handleDateChange(event: CustomEvent<{ value: string }>): void {
     this._updateEntry({
-      date: event.detail.value
+      date: event.detail.value,
     })
   }
 
   private _handleAmountChange(event: CustomEvent<{ value: number | null }>): void {
     this._updateEntry({
-      amount: event.detail.value ?? undefined
+      amount: event.detail.value ?? undefined,
     })
   }
 
   private _handleCheckbookInput(event: Event): void {
     this._updateEntry({
-      checkbook: this._getInputValue(event)
+      checkbook: this._getInputValue(event),
     })
   }
 
   private _handleCheckNumberInput(event: Event): void {
     this._updateEntry({
-      check_number: this._getInputValue(event)
+      check_number: this._getInputValue(event),
     })
   }
 
   private _handleCategoryInput(event: Event): void {
     this._updateEntry({
-      category: this._getInputValue(event)
+      category: this._getInputValue(event),
     })
   }
 
   private _handleSubCategoryInput(event: Event): void {
     this._updateEntry({
-      subcategory: this._getInputValue(event)
+      subcategory: this._getInputValue(event),
     })
   }
 
   private _handleItemizationInput(event: Event): void {
     this._updateEntry({
-      itemization: this._getInputValue(event)
+      itemization: this._getInputValue(event),
     })
   }
 
   private _handleNotesInput(event: Event): void {
     this._updateEntry({
-      notes: this._getInputValue(event)
+      notes: this._getInputValue(event),
     })
   }
 
@@ -205,7 +204,7 @@ export class EntryInputRibbon extends LitElement {
   private _updateEntry(changes: Partial<Entry>): void {
     this.entry = {
       ...this.entry,
-      ...changes
+      ...changes,
     }
 
     this.dispatchEvent(
@@ -213,9 +212,9 @@ export class EntryInputRibbon extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          entry: this.entry
-        }
-      })
+          entry: this.entry,
+        },
+      }),
     )
   }
 
@@ -232,9 +231,9 @@ export class EntryInputRibbon extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          entry: this.entry
-        }
-      })
+          entry: this.entry,
+        },
+      }),
     )
   }
 
@@ -242,8 +241,8 @@ export class EntryInputRibbon extends LitElement {
     this.dispatchEvent(
       new CustomEvent('close', {
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     )
   }
 

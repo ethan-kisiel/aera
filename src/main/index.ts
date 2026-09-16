@@ -5,66 +5,61 @@ import icon from '../../resources/icon.png?asset'
 import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 import { autoUpdater } from 'electron-updater'
 
-type LedgerAddon = typeof import('*/ledger_addon.node');
+type LedgerAddon = typeof import('*/ledger_addon.node')
 
+// eslint-disable-next-line
 const ledgerAddon: LedgerAddon = require('bindings')('ledger_addon')
 
 export function registerLedgerIpcHandlers(): void {
   ipcMain.handle(
     'ledger:get-column-uniques',
     async (_event: IpcMainInvokeEvent, column: string): Promise<string[] | undefined> => {
-      return ledgerAddon.getColumnUniques(column);
+      return ledgerAddon.getColumnUniques(column)
     }
-  );
+  )
 
-  ipcMain.handle(
-    'ledger:get-unique-years',
-    async (_event: IpcMainInvokeEvent): Promise<string[]> => {
-      return ledgerAddon.getUniqueYears();
-    }
-  );
+  ipcMain.handle('ledger:get-unique-years', async (): Promise<string[]> => {
+    return ledgerAddon.getUniqueYears()
+  })
 
   ipcMain.handle(
     'ledger:get-entries-total',
-    async (_event: IpcMainInvokeEvent, searchFilter: EntrySearchFilter): Promise<Number> => {
-      return ledgerAddon.getEntriesTotal(searchFilter);
+    async (_event: IpcMainInvokeEvent, searchFilter: EntrySearchFilter): Promise<number> => {
+      return ledgerAddon.getEntriesTotal(searchFilter)
     }
-  );
+  )
 
   // 1. Create Entry
   ipcMain.handle(
     'ledger:create-entry',
     async (_event: IpcMainInvokeEvent, entry: Entry): Promise<Entry | undefined> => {
-      return ledgerAddon.createEntry(entry);
+      return ledgerAddon.createEntry(entry)
     }
-  );
+  )
 
   // 2. Get By ID
   ipcMain.handle(
     'ledger:get-by-id',
     async (_event: IpcMainInvokeEvent, id: number): Promise<Entry | undefined> => {
-      return ledgerAddon.getById(id);
+      return ledgerAddon.getById(id)
     }
-  );
+  )
 
   // 3. Get All
   ipcMain.handle(
     'ledger:get-all',
-    async (
-      _event: IpcMainInvokeEvent,
-      sortConfig?: SortConfig
-    ): Promise<Entry[]> => {
-      return ledgerAddon.getAll(sortConfig);
+    async (_event: IpcMainInvokeEvent, sortConfig?: SortConfig): Promise<Entry[]> => {
+      return ledgerAddon.getAll(sortConfig)
     }
-  );
+  )
 
   // 4. Update Entry
   ipcMain.handle(
     'ledger:update-entry',
     async (_event: IpcMainInvokeEvent, entry: Entry): Promise<Entry | undefined> => {
-      return ledgerAddon.updateEntry(entry);
+      return ledgerAddon.updateEntry(entry)
     }
-  );
+  )
 
   // 5. Search
   ipcMain.handle(
@@ -74,15 +69,15 @@ export function registerLedgerIpcHandlers(): void {
       searchFilter: EntrySearchFilter,
       sortConfig?: SortConfig
     ): Promise<Entry[]> => {
-      return ledgerAddon.search(searchFilter, sortConfig);
+      return ledgerAddon.search(searchFilter, sortConfig)
     }
-  );
+  )
 }
 
 function createWindow(): void {
   // Create the browser window.
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const { width, height } = primaryDisplay.workAreaSize;
+  const primaryDisplay = screen.getPrimaryDisplay()
+  const { width, height } = primaryDisplay.workAreaSize
 
   const mainWindow = new BrowserWindow({
     width: width,
@@ -134,7 +129,7 @@ app.whenReady().then(() => {
   /*
     NATIVE BINDINGS
   */
-  registerLedgerIpcHandlers();
+  registerLedgerIpcHandlers()
   createWindow()
 
   app.on('activate', function () {
@@ -143,7 +138,7 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdatesAndNotify()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common

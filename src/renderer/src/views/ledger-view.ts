@@ -1,6 +1,6 @@
 // ledger-view.ts
 
-import { LitElement, css, html } from 'lit'
+import { LitElement, TemplateResult, css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import '../components/simple-table'
@@ -8,7 +8,6 @@ import '../components/year-selector'
 
 import type { TableColumn } from '../components/simple-table'
 import { Entry } from '../../../types/shared-types'
-
 
 @customElement('ledger-view')
 export class LedgerView extends LitElement {
@@ -26,19 +25,19 @@ export class LedgerView extends LitElement {
       key: 'date',
       header: 'Date (MM/DD)',
       getValue: (row) => `${row.date.split('-')[1]}/${row.date.split('-')[2]}`,
-      width: '110px'
+      width: '110px',
     },
     {
       key: 'checkbook',
       header: 'Checkbook',
       getValue: (row) => row.checkbook,
-      width: '140px'
+      width: '140px',
     },
     {
       key: 'checkNumber',
       header: 'Check #',
       getValue: (row) => row.check_number,
-      width: '90px'
+      width: '90px',
     },
     {
       key: 'amount',
@@ -50,40 +49,40 @@ export class LedgerView extends LitElement {
           return ''
         }
 
-        let convertedValue = `${value}`.padStart(3, '0').split('').reverse()
+        const convertedValue = `${value}`.padStart(3, '0').split('').reverse()
 
         convertedValue.splice(2, 0, '.')
 
         const convertedString = convertedValue.reverse().join('')
         return `$${convertedString}`
-      }
+      },
     },
     {
       key: 'category',
       header: 'Category',
       getValue: (row) => row.category,
-      width: '140px'
+      width: '140px',
     },
     {
       key: 'subCategory',
       header: 'Subcategory',
       getValue: (row) => row.subcategory,
-      width: '150px'
+      width: '150px',
     },
     {
       key: 'itemization',
       header: 'Itemization',
       getValue: (row) => row.itemization,
-      width: '160px'
+      width: '160px',
     },
     {
       key: 'notes',
       header: 'Notes',
-      getValue: (row) => row.notes
-    }
+      getValue: (row) => row.notes,
+    },
   ]
 
-  protected override render() {
+  protected override render(): TemplateResult {
     return html`
       <div class="ledger-view">
         <section class="table-container">
@@ -108,46 +107,46 @@ export class LedgerView extends LitElement {
     `
   }
 
-  private _handleYearChange(event: CustomEvent<{ year: string }>) {
+  private _handleYearChange(event: CustomEvent<{ year: string }>): void {
     this.selectedYear = event.detail.year
 
     this.dispatchEvent(
       new CustomEvent('year-change', {
         detail: {
-          year: this.selectedYear
+          year: this.selectedYear,
         },
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     )
   }
 
-  private _handleYearAdd() {
+  private _handleYearAdd(): void {
     this.dispatchEvent(
       new CustomEvent('year-add', {
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     )
   }
 
-  private _handleRowFocus(event: CustomEvent<{ row: Entry }>) {
+  private _handleRowFocus(event: CustomEvent<{ row: Entry }>): void {
     this.dispatchEvent(
       new CustomEvent('row-focus', {
         detail: event.detail,
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     )
   }
 
-  private _handleRowDelete(event: CustomEvent<{ row: Entry }>) {
+  private _handleRowDelete(event: CustomEvent<{ row: Entry }>): void {
     this.dispatchEvent(
       new CustomEvent('row-delete', {
         detail: event.detail,
         bubbles: true,
-        composed: true
-      })
+        composed: true,
+      }),
     )
   }
 

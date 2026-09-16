@@ -1,4 +1,4 @@
-import { LitElement, css, html } from 'lit'
+import { LitElement, TemplateResult, css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 export interface TableColumn<T extends object> {
@@ -209,13 +209,13 @@ export class SimpleTable<T extends object> extends LitElement {
     }
   `
 
-  protected render() {
+  protected render(): TemplateResult {
     return html`
       <div class="table-container">
         <table>
           <colgroup>
             ${this.columns.map(
-              (column) => html` <col style=${column.width ? `width: ${column.width}` : ''} /> `
+              (column) => html` <col style=${column.width ? `width: ${column.width}` : ''} /> `,
             )}
 
             <col style="width: 84px" />
@@ -241,7 +241,7 @@ export class SimpleTable<T extends object> extends LitElement {
     `
   }
 
-  private _renderRow(row: T) {
+  private _renderRow(row: T): TemplateResult {
     const deleted = this._deletedRows.has(row)
 
     return html`
@@ -273,7 +273,7 @@ export class SimpleTable<T extends object> extends LitElement {
     `
   }
 
-  private _renderCell(row: T, column: TableColumn<T>) {
+  private _renderCell(row: T, column: TableColumn<T>): TemplateResult {
     const value = column.getValue(row)
 
     const displayValue = column.formatValue
@@ -285,7 +285,7 @@ export class SimpleTable<T extends object> extends LitElement {
     return html` <td>${displayValue}</td> `
   }
 
-  private _renderEmpty() {
+  private _renderEmpty(): TemplateResult {
     return html`
       <tr>
         <td class="empty" colspan=${this.columns.length + 1}>${this.emptyText}</td>
@@ -299,9 +299,9 @@ export class SimpleTable<T extends object> extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          row
-        }
-      })
+          row,
+        },
+      }),
     )
   }
 
@@ -317,9 +317,9 @@ export class SimpleTable<T extends object> extends LitElement {
         bubbles: true,
         composed: true,
         detail: {
-          row
-        }
-      })
+          row,
+        },
+      }),
     )
 
     this.requestUpdate()

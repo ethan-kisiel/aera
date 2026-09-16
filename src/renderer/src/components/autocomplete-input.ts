@@ -1,4 +1,4 @@
-import { LitElement, css, html, nothing } from 'lit'
+import { LitElement, TemplateResult, css, html, nothing } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 @customElement('autocomplete-input')
@@ -234,22 +234,22 @@ export class AutocompleteInput extends LitElement {
     }
   `
 
-  protected render() {
+  protected render(): TemplateResult {
     const ghostText = this._ghostText
 
     return html`
       <div class="container">
         ${
-                  ghostText
-                    ? html`
-                        <div class="ghost" aria-hidden="true">
-                          <span class="ghost-prefix"> ${this.value} </span>
+          ghostText
+            ? html`
+                <div class="ghost" aria-hidden="true">
+                  <span class="ghost-prefix"> ${this.value} </span>
 
-                          <span class="ghost-completion"> ${ghostText} </span>
-                        </div>
-                      `
-                    : nothing
-                }
+                  <span class="ghost-completion"> ${ghostText} </span>
+                </div>
+              `
+            : nothing
+        }
 
         <input
           class=${this.invalid ? 'invalid' : ''}
@@ -264,13 +264,13 @@ export class AutocompleteInput extends LitElement {
         />
 
         ${
-                  this._isOpen && this._matches.length > 0
-                    ? html`
-                        <div class="dropdown" role="listbox">
-                          ${this._matches.map(
-                                (item, index) => html`
-                                  <div
-                                    class=${`
+          this._isOpen && this._matches.length > 0
+            ? html`
+                <div class="dropdown" role="listbox">
+                  ${this._matches.map(
+                    (item, index) => html`
+                      <div
+                        class=${`
                                               option
                                               ${
                                                 index === this._highlightedIndex
@@ -278,19 +278,18 @@ export class AutocompleteInput extends LitElement {
                                                   : ''
                                               }
                                           `}
-                                    role="option"
-                                    aria-selected=${index === this._highlightedIndex}
-                                    @mousedown=${(event: MouseEvent) =>
-                                            this._selectFromMouse(event, item)}
-                                  >
-                                    ${item}
-                                  </div>
-                                `
-                              )}
-                        </div>
-                      `
-                    : nothing
-                }
+                        role="option"
+                        aria-selected=${index === this._highlightedIndex}
+                        @mousedown=${(event: MouseEvent) => this._selectFromMouse(event, item)}
+                      >
+                        ${item}
+                      </div>
+                    `
+                  )}
+                </div>
+              `
+            : nothing
+        }
       </div>
     `
   }
