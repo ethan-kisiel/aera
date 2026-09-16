@@ -18,8 +18,8 @@ export class AeraApp extends LitElement {
   @state()
   private _isYearModalShown = false;
 
-  @state()
-  private _isDeleteModalShown = false;
+  // @state()
+  // private _isDeleteModalShown = false;
 
   @state()
   private _selectedYear = `${new Date().getFullYear()}`
