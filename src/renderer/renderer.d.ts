@@ -1,5 +1,6 @@
 export interface ILedgerAPI {
   getColumnUniques(column: string): Promise<string[] | undefined>;
+  getUniqueYears(): Promise<string[]>;
   getEntriesTotal(searchFilter: EntrySearchFilter): Promise<Number>;
   createEntry(entry: Entry): Promise<Entry?>;
   getById(id: number): Promise<Entry?>;

@@ -6,6 +6,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
     LedgerAddon(Napi::Env env, Napi::Object exports) {
       DefineAddon(exports, {
         InstanceMethod("getColumnUniques", &LedgerAddon::GetColumnUniques),
+        InstanceMethod("getUniqueYears", &LedgerAddon::GetUniqueYears),
         InstanceMethod("getEntriesTotal", &LedgerAddon::GetEntriesTotal),
         InstanceMethod("createEntry", &LedgerAddon::CreateEntry),
         InstanceMethod("getById", &LedgerAddon::GetById),
@@ -302,6 +303,17 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
       }
       return env.Null();
     }
+
+    Napi::Value GetUniqueYears(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      auto values = this->ledger_->get_unique_years();
+      Napi::Array result = Napi::Array::New(env, values.size());
+      for (int i = 0; i < values.size(); ++i) {
+        result[i] = Napi::String::New(env, values[i]);
+      }
+      return result;
+    }
+
     Napi::Value GetEntriesTotal(const Napi::CallbackInfo& info) {
       Napi::Env env = info.Env();
       Napi::Object filter_object = info[0].As<Napi::Object>();

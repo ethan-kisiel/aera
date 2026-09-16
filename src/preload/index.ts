@@ -4,8 +4,11 @@ import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 
 // Custom APIs for renderer
 const ledgerApi = {
-  getColumnUniques: (column: string): Promise<Number> => 
+  getColumnUniques: (column: string): Promise<string[] | undefined> => 
     ipcRenderer.invoke('ledger:get-column-uniques', column),
+  
+  getUniqueYears: (): Promise<string[]> => 
+    ipcRenderer.invoke('ledger:get-unique-years'),
 
   getEntriesTotal: (searchFilter: EntrySearchFilter): Promise<Number> => 
     ipcRenderer.invoke('ledger:get-entries-total', searchFilter),

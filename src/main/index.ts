@@ -18,6 +18,13 @@ export function registerLedgerIpcHandlers(): void {
   );
 
   ipcMain.handle(
+    'ledger:get-unique-years',
+    async (_event: IpcMainInvokeEvent): Promise<string[]> => {
+      return ledgerAddon.getUniqueYears();
+    }
+  );
+
+  ipcMain.handle(
     'ledger:get-entries-total',
     async (_event: IpcMainInvokeEvent, searchFilter: EntrySearchFilter): Promise<Number> => {
       return ledgerAddon.getEntriesTotal(searchFilter);

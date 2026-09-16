@@ -31,6 +31,7 @@ class LedgerRepository {
         LedgerRepository(const std::string& db_file = ":memory:");
 
         std::vector<std::string> get_column_uniques(std::string Entry::* column);
+        std::vector<std::string> get_unique_years();
 
         int64_t get_entries_total(LedgerRepository::EntrySearchFilter search_filter);
 

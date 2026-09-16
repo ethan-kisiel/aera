@@ -21,6 +21,34 @@ std::vector<std::string> LedgerRepository::get_column_uniques(std::string Entry:
     return std::vector<std::string> {};
 }
 
+std::vector<std::string> LedgerRepository::get_unique_years() {
+    try {
+        std::vector<std::string> unique_years {};
+
+        auto dates = this->storage_.select(
+            sqlite_orm::distinct(&Entry::date),
+            sqlite_orm::order_by(&Entry::date).asc()
+        );
+
+        for (auto& date : dates) {
+            auto year_string = std::string{std::string_view(date).substr(0, 4)};
+            if (
+                unique_years.empty() || 
+                std::stoi(year_string) >
+                std::stoi(unique_years[unique_years.size() - 1])
+            ) {
+                unique_years.push_back(year_string);
+            }
+        }
+
+        return unique_years;
+    } catch (...) {
+        
+    }
+
+    return std::vector<std::string> {};
+}
+
 int64_t LedgerRepository::get_entries_total(LedgerRepository::EntrySearchFilter search_filter) {
     try {
         auto amount_result = this->storage_.select(

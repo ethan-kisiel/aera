@@ -14,6 +14,16 @@ std::vector<std::string> Ledger::get_column_uniques(std::string Entry::* column)
     return std::vector<std::string> {};
 }
 
+std::vector<std::string> Ledger::get_unique_years() {
+    try {
+        return this->ledger_repository_->get_unique_years();
+    } catch (...) {
+
+    }
+    return std::vector<std::string> {};
+}
+
+
 int64_t Ledger::get_entries_total(LedgerRepository::EntrySearchFilter search_filter) {
     try {
         return this->ledger_repository_->get_entries_total(search_filter);

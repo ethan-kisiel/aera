@@ -2,7 +2,10 @@ import { LitElement, html, css } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import './views/entry-input-ribbon'
 import './views/ledger-view'
+import './components/app-modal'
+import './components/autocomplete-input'
 import { Entry } from '../../types/shared-types'
+import { ModalAction } from './components/app-modal'
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
@@ -10,10 +13,16 @@ export class AeraApp extends LitElement {
   private _rows: Entry[] = []
 
   @state()
-  private _years = ['2026', '2025', '2024']
+  private _years: string[] = []
 
   @state()
-  private _selectedYear = '2026'
+  private _isYearModalShown = false;
+
+  @state()
+  private _isDeleteModalShown = false;
+
+  @state()
+  private _selectedYear = `${new Date().getFullYear()}`
 
   @state()
   private _isEntryRibbonShown = true
@@ -30,6 +39,9 @@ export class AeraApp extends LitElement {
   @state()
   private _itemizations: string[] = []
 
+  @state()
+  private _newYear: number | null = null;
+
   private async updateDropdownSets() {
     this._checkbooks = (await window.ledgerApi.getColumnUniques('checkbook')) ?? []
     this._categories = (await window.ledgerApi.getColumnUniques('category')) ?? []
@@ -37,19 +49,23 @@ export class AeraApp extends LitElement {
     this._itemizations = (await window.ledgerApi.getColumnUniques('itemization')) ?? []
   }
 
-  async connectedCallback() {
-    super.connectedCallback()
-    const result = await window.ledgerApi.search(
-      { year: this._selectedYear },
-      { column: 'date', descending: true }
-    )
-    console.log(result)
+  private async refreshTableData() {
     this._rows = await window.ledgerApi.search(
       { year: this._selectedYear },
       { column: 'date', descending: true }
     )
+  }
 
-    this.updateDropdownSets()
+  async connectedCallback() {
+    super.connectedCallback()
+    // setup years
+    this._years = await window.ledgerApi.getUniqueYears();
+    this._selectedYear = this._years.length > 0 ? this._years[this._years.length -1] : this._selectedYear;
+
+    // setup rows
+    await this.refreshTableData();
+    // update input dropdowns
+    await this.updateDropdownSets()
   }
 
   protected override render() {
@@ -76,6 +92,75 @@ export class AeraApp extends LitElement {
               >
               </entry-input-ribbon>`
             : null
+        }
+
+        ${
+          this._isYearModalShown ? html`
+          <app-modal
+              .open=${this._isYearModalShown}
+              title="New year"
+              .actions=${[
+                  {
+                      id: 'cancel',
+                      label: 'Cancel',
+                  } as ModalAction,
+                  {
+                      id: 'add',
+                      label: 'Add year',
+                      variant: 'primary',
+                  } as ModalAction,
+              ]}
+              @modal-action=${(event: CustomEvent<{action: string}>) => {
+                if (event.detail.action == 'cancel') {
+                  this._newYear = null;
+                  this._isYearModalShown = false;
+                }
+                if (event.detail.action == 'add') {
+                  if (
+                    this._newYear && 
+                    this._newYear > 1800 && 
+                    this._newYear < 4000
+                  ) {
+                    if (this._years?.includes(`${this._newYear}`)) {
+                      return;
+                    }
+
+                    this._years.push(`${this._newYear}`);
+                    console.log(this._years);
+                    console.log(`${this._newYear}`)
+                    this._selectedYear = `${this._newYear}`;
+                    
+                    this.refreshTableData();
+                    this._newYear = null;
+                    this._isYearModalShown = false;
+                  }
+                }
+              }}
+              @modal-close=${() => this._isYearModalShown = false}
+              >
+              <div class="year-form">
+                  <label>
+                      <span>Year</span>
+                      <autocomplete-input
+                      .invalid=${
+                        !this._newYear || 
+                        this._newYear < 1800 || 
+                        this._newYear > 4000 || 
+                        this._years?.includes(`${this._newYear}`)
+                      }
+                      @input=${
+                        (event) => {
+                          const value = (
+                          event.currentTarget as HTMLInputElement).value
+                          this._newYear = Number.parseInt(value);
+                        }
+                      }
+                      >
+                      </autocomplete-input>
+                  </label>
+              </div>
+          </app-modal>
+          ` : null
         }
       </div>
     `
@@ -128,6 +213,7 @@ export class AeraApp extends LitElement {
 
   private _handleYearAdd() {
     // Create a new year here.
+    this._isYearModalShown = true;
   }
 
   private _handleRowFocus(_: CustomEvent) {

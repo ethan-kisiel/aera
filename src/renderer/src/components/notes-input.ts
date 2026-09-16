@@ -123,7 +123,7 @@ export class NotesInput extends LitElement {
                     placeholder=${this.placeholder}
                     maxlength=${this.maxLength > 0
                         ? this.maxLength
-                        : nothing}
+                        : 500}
                     aria-invalid=${this.invalid}
                     aria-describedby="character-count"
                     @input=${this._handleInput}
