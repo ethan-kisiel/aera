@@ -218,7 +218,7 @@ export class AeraApp extends LitElement {
                         }
 
                         this._deletedEntry = null
-                        this.refreshTableData()
+                        await this.refreshTableData()
                         this._isDeleteModalShown = false
                       }
                     }

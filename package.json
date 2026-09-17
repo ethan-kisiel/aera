@@ -1,6 +1,6 @@
 {
   "name": "aera",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
   "author": "Ethan Kisiel",
@@ -62,7 +62,14 @@
       "build/Release/*.node",
       "package.json"
     ],
+    "win": {
+      "icon": "resources/aera-logo.svg"
+    },
+    "linux": {
+      "icon": "resources/aera-logo.svg"
+    },
     "mac": {
+      "icon": "resources/aera-logo.svg",
       "category": "public.app-category.utilities",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
