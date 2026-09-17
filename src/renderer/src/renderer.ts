@@ -58,6 +58,9 @@ export class AeraApp extends LitElement {
     notes: ''
   }
 
+  @state()
+  private _tableTotal: number = 0
+
   private async updateDropdownSets(): Promise<void> {
     this._checkbooks = (await window.ledgerApi.getColumnUniques('checkbook')) ?? []
     this._categories = (await window.ledgerApi.getColumnUniques('category')) ?? []
@@ -68,8 +71,10 @@ export class AeraApp extends LitElement {
   private async refreshTableData(): Promise<void> {
     this._rows = await window.ledgerApi.search(
       { year: this._selectedYear },
-      { column: 'date', descending: true }
+      { column: 'date', descending: false }
     )
+
+    this._tableTotal = await window.ledgerApi.getEntriesTotal({ year: this._selectedYear })
   }
 
   private async refreshYears(): Promise<void> {
@@ -102,6 +107,7 @@ export class AeraApp extends LitElement {
           .rows=${this._rows}
           .years=${this._years}
           .selectedYear=${this._selectedYear}
+          .totalAmount=${this._tableTotal}
           @year-change=${this._handleYearChange}
           @year-add=${this._handleYearAdd}
           @row-focus=${this._handleRowFocus}
@@ -201,24 +207,16 @@ export class AeraApp extends LitElement {
                       variant: 'danger'
                     }
                   ]}
-                  @modal-action=${async (event: CustomEvent<{ action: string }>) => {
+                  @modal-action=${(event: CustomEvent<{ action: string }>) => {
                     if (event.detail.action == 'cancel') {
                       this._isDeleteModalShown = false
                       this._deletedEntry = null
                     }
                     if (event.detail.action == 'delete') {
                       if (this._deletedEntry) {
-                        const deleteResult = await window.ledgerApi.deleteEntry(
-                          this._deletedEntry.id
-                        )
-                        if (!deleteResult) {
-                          this._isDeleteModalShown = false
-                          this._deletedEntry = null
-                          return
-                        }
-
+                        window.ledgerApi.deleteEntry(this._deletedEntry.id)
+                        this.refreshTableData()
                         this._deletedEntry = null
-                        await this.refreshTableData()
                         this._isDeleteModalShown = false
                       }
                     }

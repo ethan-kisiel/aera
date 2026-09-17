@@ -20,8 +20,28 @@ export class LedgerView extends LitElement {
   @property({ type: String })
   public selectedYear = ''
 
-  @property({ type: WeakSet<Entry> })
+  @property({ type: WeakSet<Entry> }) // Note: Lit won't auto-update if this is mutated directly; ensure re-renders are triggered if needed
   public deletedRows = new WeakSet<Entry>()
+
+  @property({ type: Number })
+  public totalAmount = 0
+
+  private _formatAmount(value: number): string {
+    if (typeof value !== 'number') {
+      return ''
+    }
+
+    const convertedValue = `${value}`.padStart(3, '0').split('').reverse()
+    convertedValue.splice(2, 0, '.')
+    const convertedString = convertedValue.reverse().join('')
+
+    return `$${convertedString}`
+  }
+
+  private get _activeRows(): Entry[] {
+    // Filter out rows that are marked as deleted in the WeakSet
+    return this.rows.filter((row) => !this.deletedRows.has(row))
+  }
 
   private readonly _columns: TableColumn<Entry>[] = [
     {
@@ -47,18 +67,7 @@ export class LedgerView extends LitElement {
       header: 'Amount',
       getValue: (row) => row.amount,
       width: '120px',
-      formatValue: (value) => {
-        if (typeof value !== 'number') {
-          return ''
-        }
-
-        const convertedValue = `${value}`.padStart(3, '0').split('').reverse()
-
-        convertedValue.splice(2, 0, '.')
-
-        const convertedString = convertedValue.reverse().join('')
-        return `$${convertedString}`
-      }
+      formatValue: (value) => this._formatAmount(value as number)
     },
     {
       key: 'category',
@@ -88,6 +97,14 @@ export class LedgerView extends LitElement {
   protected override render(): TemplateResult {
     return html`
       <div class="ledger-view">
+        <header class="ledger-header">
+          <h2 class="ledger-title">Ledger</h2>
+          <div class="ledger-stats">
+            <span>Entries: <strong>${this._activeRows.length}</strong></span>
+            <span>Total: <strong>${this._formatAmount(this.totalAmount)}</strong></span>
+          </div>
+        </header>
+
         <section class="table-container">
           <simple-table
             .rows=${this.rows}
@@ -168,6 +185,33 @@ export class LedgerView extends LitElement {
       width: 100%;
       height: 100%;
       min-height: 0;
+    }
+
+    .ledger-header {
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: var(--color-surface, #ffffff);
+      border-bottom: 1px solid var(--color-border, #d9dde3);
+    }
+
+    .ledger-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .ledger-stats {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 1rem;
+      color: var(--color-text-secondary, #4a5568);
+    }
+
+    .ledger-stats strong {
+      color: var(--color-text, #1a202c);
     }
 
     .table-container {
