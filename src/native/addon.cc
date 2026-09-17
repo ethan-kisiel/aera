@@ -14,6 +14,7 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
         InstanceMethod("getAll", &LedgerAddon::GetAll),
         InstanceMethod("updateEntry", &LedgerAddon::UpdateEntry),
         InstanceMethod("search", &LedgerAddon::Search),
+        InstanceMethod("deleteEntry", &LedgerAddon::DeleteEntry),
       });
     }
 
@@ -419,6 +420,23 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
         result[i] = this->get_entry_object(entries[i], env);
       }
       return result;
+    }
+
+    Napi::Value DeleteEntry(const Napi::CallbackInfo& info) {
+      Napi::Env env = info.Env();
+      Napi::Value input_id_value = info[0].As<Napi::Value>();
+      if (!input_id_value.IsNumber()) {
+        Napi::TypeError::New(env, 
+          "Invalid input, id must be string")
+          .ThrowAsJavaScriptException();
+        return env.Null();
+      }
+
+      auto delete_result = this->ledger_->delete_entry(input_id_value.As<Napi::Number>().Int32Value());
+      if (delete_result.has_value()) {
+        return Napi::Number::New(env, delete_result.value());
+      }
+      return env.Null();
     }
 
     Napi::Value InitializeDatabase(const Napi::CallbackInfo& info) {

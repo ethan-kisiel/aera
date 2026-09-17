@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.ethankisiel.aera
 productName: aera
 directories:
   buildResources: build
@@ -10,6 +10,7 @@ asarUnpack:
   - "**/*.node"
   - "resources/**"
 win:
+  icon: resources/aera-logo.svg
   executableName: aera
 nsis:
   artifactName: \({name}-\){version}-setup.${ext}
@@ -17,6 +18,7 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
+  icon: resources/aera-logo.svg
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -27,6 +29,7 @@ mac:
 dmg:
   artifactName: \({name}-\){version}.${ext}
 linux:
+  icon: resources/aera-logo.svg
   target:
     - AppImage
     - snap

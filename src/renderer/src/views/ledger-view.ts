@@ -20,6 +20,9 @@ export class LedgerView extends LitElement {
   @property({ type: String })
   public selectedYear = ''
 
+  @property({ type: WeakSet<Entry> })
+  public deletedRows = new WeakSet<Entry>()
+
   private readonly _columns: TableColumn<Entry>[] = [
     {
       key: 'date',
@@ -89,6 +92,7 @@ export class LedgerView extends LitElement {
           <simple-table
             .rows=${this.rows}
             .columns=${this._columns}
+            .deletedRows=${this.deletedRows}
             emptyText="No entries for this year."
             @row-focus=${this._handleRowFocus}
             @row-delete=${this._handleRowDelete}

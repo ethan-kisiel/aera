@@ -1,5 +1,5 @@
 import { LitElement, TemplateResult, css, html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 export interface TableColumn<T extends object> {
   /**
@@ -62,8 +62,8 @@ export class SimpleTable<T extends object> extends LitElement {
    * Object identity is intentionally used here. The table does
    * not need to know anything about the user's row model or IDs.
    */
-  @state()
-  private _deletedRows = new WeakSet<object>()
+  @property({ attribute: false })
+  private deletedRows: WeakSet<T> = new WeakSet<T>()
 
   public static styles = css`
     :host {
@@ -242,7 +242,7 @@ export class SimpleTable<T extends object> extends LitElement {
   }
 
   private _renderRow(row: T): TemplateResult {
-    const deleted = this._deletedRows.has(row)
+    const deleted = this.deletedRows.has(row)
 
     return html`
       <tr class=${deleted ? 'deleted' : ''}>
@@ -306,12 +306,6 @@ export class SimpleTable<T extends object> extends LitElement {
   }
 
   private _deleteRow(row: T): void {
-    if (this._deletedRows.has(row)) {
-      return
-    }
-
-    this._deletedRows.add(row)
-
     this.dispatchEvent(
       new CustomEvent<TableDeleteEvent<T>>('row-delete', {
         bubbles: true,
@@ -329,7 +323,7 @@ export class SimpleTable<T extends object> extends LitElement {
    * Removes the soft-delete state from a row.
    */
   public restoreRow(row: T): void {
-    this._deletedRows.delete(row)
+    this.deletedRows.delete(row)
     this.requestUpdate()
   }
 
@@ -337,13 +331,13 @@ export class SimpleTable<T extends object> extends LitElement {
    * Returns whether a row has been marked for deletion.
    */
   public isDeleted(row: T): boolean {
-    return this._deletedRows.has(row)
+    return this.deletedRows.has(row)
   }
 
   /**
    * Returns all rows currently marked for deletion.
    */
   public getDeletedRows(): T[] {
-    return this.rows.filter((row) => this._deletedRows.has(row))
+    return this.rows.filter((row) => this.deletedRows.has(row))
   }
 }

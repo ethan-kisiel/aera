@@ -72,6 +72,13 @@ export function registerLedgerIpcHandlers(): void {
       return ledgerAddon.search(searchFilter, sortConfig)
     }
   )
+
+  ipcMain.handle(
+    'ledger:delete-entry',
+    async (_event: IpcMainInvokeEvent, id: number): Promise<number | undefined> => {
+      return ledgerAddon.deleteEntry(id)
+    }
+  )
 }
 
 function createWindow(): void {

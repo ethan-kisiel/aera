@@ -18,8 +18,8 @@ export class AeraApp extends LitElement {
   @state()
   private _isYearModalShown = false
 
-  // @state()
-  // private _isDeleteModalShown = false;
+  @state()
+  private _isDeleteModalShown = false
 
   @state()
   private _selectedYear = `${new Date().getFullYear()}`
@@ -41,6 +41,9 @@ export class AeraApp extends LitElement {
 
   @state()
   private _newYear: number | null = null
+
+  @state()
+  private _deletedEntry: Entry | null = null
 
   @state()
   private _selectedEntry: Omit<Entry, 'amount'> & { amount: number | null } = {
@@ -180,6 +183,54 @@ export class AeraApp extends LitElement {
               `
             : null
         }
+        ${
+          this._isDeleteModalShown
+            ? html`
+                <app-modal
+                  .open=${this._isDeleteModalShown}
+                  title="Delete entry"
+                  message="Are you sure you want to delete this entry?"
+                  .actions=${[
+                    {
+                      id: 'cancel',
+                      label: 'Cancel'
+                    },
+                    {
+                      id: 'delete',
+                      label: 'Delete',
+                      variant: 'danger'
+                    }
+                  ]}
+                  @modal-action=${async (event: CustomEvent<{ action: string }>) => {
+                    if (event.detail.action == 'cancel') {
+                      this._isDeleteModalShown = false
+                      this._deletedEntry = null
+                    }
+                    if (event.detail.action == 'delete') {
+                      if (this._deletedEntry) {
+                        const deleteResult = await window.ledgerApi.deleteEntry(
+                          this._deletedEntry.id
+                        )
+                        if (!deleteResult) {
+                          this._isDeleteModalShown = false
+                          this._deletedEntry = null
+                          return
+                        }
+
+                        this._deletedEntry = null
+                        this.refreshTableData()
+                        this._isDeleteModalShown = false
+                      }
+                    }
+                  }}
+                  @modal-close=${() => {
+                    this._isDeleteModalShown = false
+                    this._deletedEntry = null
+                  }}
+                ></app-modal>
+              `
+            : null
+        }
       </div>
     `
   }
@@ -240,9 +291,9 @@ export class AeraApp extends LitElement {
     this._selectedEntry = event.detail.row
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private _handleRowDelete(_: CustomEvent<{ row: Entry }>): void {
-    // Handle deletion.
+  private _handleRowDelete(event: CustomEvent<{ row: Entry }>): void {
+    this._deletedEntry = event.detail.row
+    this._isDeleteModalShown = true
   }
 
   private _clearInput(): void {

@@ -3,7 +3,7 @@
   "version": "0.1.24",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "Ethan Kisiel",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write \"src/**/*.{ts,js,html,css}\"",
