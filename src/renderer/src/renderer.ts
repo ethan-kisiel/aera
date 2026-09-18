@@ -271,12 +271,7 @@ export class AeraApp extends LitElement {
 
   private async _handleYearChange(event: CustomEvent<{ year: string }>): Promise<void> {
     this._selectedYear = event.detail.year
-    this._rows = await window.ledgerApi.search(
-      {
-        year: this._selectedYear
-      },
-      { column: 'date', descending: false }
-    )
+    this.refreshTableData()
   }
 
   private _handleYearAdd(): void {

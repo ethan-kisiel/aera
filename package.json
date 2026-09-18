@@ -1,6 +1,6 @@
 {
   "name": "aera",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
   "author": "Ethan Kisiel",

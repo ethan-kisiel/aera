@@ -1,9 +1,11 @@
-import { app, shell, screen, BrowserWindow, ipcMain, IpcMainInvokeEvent } from 'electron'
+import { app, shell, screen, BrowserWindow, ipcMain, IpcMainInvokeEvent, Menu } from 'electron'
 import path, { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Entry, EntrySearchFilter, SortConfig } from '../types/shared-types'
 import { autoUpdater } from 'electron-updater'
+import { getTemplate } from './menu/menu-bar-template'
+import { getEntryFilePath, parseEntriesFile } from './menu/load-entries'
 
 type LedgerAddon = typeof import('*/ledger_addon.node')
 
@@ -94,9 +96,24 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      devTools: !app.isPackaged
     }
   })
+
+  const menu = Menu.buildFromTemplate(
+    getTemplate(async () => {
+      const filePath = await getEntryFilePath(mainWindow)
+      if (filePath) {
+        const entries = await parseEntriesFile(filePath)
+        entries.forEach((entry) => {
+          ledgerAddon.createEntry(entry)
+        })
+        mainWindow.reload()
+      }
+    })
+  )
+  Menu.setApplicationMenu(menu)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

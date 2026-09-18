@@ -31,10 +31,12 @@ export class LedgerView extends LitElement {
       return ''
     }
 
-    const convertedValue = `${value}`.padStart(3, '0').split('').reverse()
-    convertedValue.splice(2, 0, '.')
-    const convertedString = convertedValue.reverse().join('')
+    const convertedValue = `${value}`.padStart(3, '0')
+    const dollars = convertedValue.slice(0, -2)
+    const cents = convertedValue.slice(-2)
+    const dollarsMatch = dollars.match(/.{1,3}(?=(.{3})*$)/g)?.join(',') ?? dollars
 
+    const convertedString = dollarsMatch + '.' + cents
     return `$${convertedString}`
   }
 
