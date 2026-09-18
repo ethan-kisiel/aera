@@ -25,7 +25,7 @@ export class AutocompleteInput extends LitElement {
    * Maximum number of suggestions displayed.
    */
   @property({ type: Number })
-  public maxResults = 8
+  public maxResults = -1
 
   /**
    * Whether the input is currently invalid.
