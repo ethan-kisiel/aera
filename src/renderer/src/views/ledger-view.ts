@@ -50,7 +50,7 @@ export class LedgerView extends LitElement {
       key: 'date',
       header: 'Date (MM/DD)',
       getValue: (row) => `${row.date.split('-')[1]}/${row.date.split('-')[2]}`,
-      width: '110px'
+      width: '80px'
     },
     {
       key: 'checkbook',
@@ -75,19 +75,19 @@ export class LedgerView extends LitElement {
       key: 'category',
       header: 'Category',
       getValue: (row) => row.category,
-      width: '140px'
+      width: '240px'
     },
     {
       key: 'subCategory',
       header: 'Subcategory',
       getValue: (row) => row.subcategory,
-      width: '150px'
+      width: '240px'
     },
     {
       key: 'itemization',
       header: 'Itemization',
       getValue: (row) => row.itemization,
-      width: '160px'
+      width: '240px'
     },
     {
       key: 'notes',
