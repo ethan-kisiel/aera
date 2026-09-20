@@ -6,6 +6,7 @@ import './components/app-modal'
 import './components/autocomplete-input'
 import { Entry } from '../../types/shared-types'
 import { ModalAction } from './components/app-modal'
+import { flexibleSerach } from './utils'
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
@@ -61,6 +62,9 @@ export class AeraApp extends LitElement {
   @state()
   private _tableTotal: number = 0
 
+  @state()
+  private _searchText: string = ''
+
   private async updateDropdownSets(): Promise<void> {
     this._checkbooks = (await window.ledgerApi.getColumnUniques('checkbook')) ?? []
     this._categories = (await window.ledgerApi.getColumnUniques('category')) ?? []
@@ -69,10 +73,14 @@ export class AeraApp extends LitElement {
   }
 
   private async refreshTableData(): Promise<void> {
-    this._rows = await window.ledgerApi.search(
-      { year: this._selectedYear },
-      { column: 'date', descending: false }
-    )
+    if (this._searchText) {
+      this._rows = await flexibleSerach(window.ledgerApi, this._selectedYear, this._searchText)
+    } else {
+      this._rows = await window.ledgerApi.search(
+        { year: this._selectedYear },
+        { column: 'date', descending: false }
+      )
+    }
 
     this._tableTotal = await window.ledgerApi.getEntriesTotal({ year: this._selectedYear })
   }
@@ -112,6 +120,11 @@ export class AeraApp extends LitElement {
           @year-add=${this._handleYearAdd}
           @row-focus=${this._handleRowFocus}
           @row-delete=${this._handleRowDelete}
+          @search-change=${(event) => {
+            this._searchText = event.detail.value
+            console.log(this._searchText)
+            this.refreshTableData()
+          }}
         ></ledger-view>
         ${
           this._isEntryRibbonShown

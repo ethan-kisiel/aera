@@ -16,11 +16,11 @@ export interface SortConfig {
 }
 
 export interface EntrySearchFilter {
-  year: string
-  amount_range: [start: number, end: number]
-  check_numbers: string[]
-  checkbooks: string[]
-  categories: string[]
-  subcategories: string[]
-  itemizations: string[]
+  year?: string
+  amount_range?: [start: number, end: number]
+  check_numbers?: string[]
+  checkbooks?: string[]
+  categories?: string[]
+  subcategories?: string[]
+  itemizations?: string[]
 }

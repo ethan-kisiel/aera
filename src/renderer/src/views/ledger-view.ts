@@ -5,9 +5,11 @@ import { customElement, property } from 'lit/decorators.js'
 
 import '../components/simple-table'
 import '../components/year-selector'
+import '../components/search-bar'
 
 import type { TableColumn } from '../components/simple-table'
 import { Entry } from '../../../types/shared-types'
+import { SearchChangeEvent } from '../components/search-bar'
 
 @customElement('ledger-view')
 export class LedgerView extends LitElement {
@@ -105,6 +107,8 @@ export class LedgerView extends LitElement {
             <span>Entries: <strong>${this._activeRows.length}</strong></span>
             <span>Total: <strong>${this._formatAmount(this.totalAmount)}</strong></span>
           </div>
+          <search-bar placeholder=${'Search entries...'} @search-change=${this._handleSearch}>
+          </search-bar>
         </header>
 
         <section class="table-container">
@@ -166,6 +170,16 @@ export class LedgerView extends LitElement {
   private _handleRowDelete(event: CustomEvent<{ row: Entry }>): void {
     this.dispatchEvent(
       new CustomEvent('row-delete', {
+        detail: event.detail,
+        bubbles: true,
+        composed: true
+      })
+    )
+  }
+
+  private _handleSearch(event: CustomEvent<SearchChangeEvent>): void {
+    this.dispatchEvent(
+      new CustomEvent('search-change', {
         detail: event.detail,
         bubbles: true,
         composed: true

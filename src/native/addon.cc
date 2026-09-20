@@ -1,5 +1,6 @@
 #include <napi.h>
 #include "src/ledger/ledger.hh"
+#include <iostream>
 
 class LedgerAddon : public Napi::Addon<LedgerAddon> {
   public:
@@ -19,6 +20,23 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
     }
 
   private:
+    std::optional<std::vector<std::string>> napi_string_array_object_to_vector(const Napi::Object& array) {
+      uint32_t length = array.Get("length").As<Napi::Number>().Uint32Value();
+      std::vector<std::string> vector;
+      vector.reserve(length);
+
+      for (uint32_t i = 0; i < length; i++) {
+        Napi::Value element = array.Get(i);
+        if (element.IsString()) {
+          vector.push_back(element.As<Napi::String>().Utf8Value());
+        }
+      }
+
+      if (vector.size() > 0) {
+        return vector;
+      }
+      return std::nullopt;
+    }
     std::optional<std::vector<std::string>> napi_string_array_to_vector(const Napi::Array& array) {
       uint32_t length = array.Length();
       std::vector<std::string> vector;
@@ -72,45 +90,45 @@ class LedgerAddon : public Napi::Addon<LedgerAddon> {
 
       if (input_object.Has("check_numbers")) {
         current_filter = input_object.Get("check_numbers");
-        if (current_filter.IsArray()) {
-          search_filter.check_numbers = napi_string_array_to_vector(
-            current_filter.As<Napi::Array>()
+        if (current_filter.IsObject()) {
+          search_filter.check_numbers = napi_string_array_object_to_vector(
+            current_filter.As<Napi::Object>()
           );
         }
       }
 
       if (input_object.Has("checkbooks")) {
         current_filter = input_object.Get("checkbooks");
-        if (current_filter.IsArray()) {
-          search_filter.check_numbers = napi_string_array_to_vector(
-            current_filter.As<Napi::Array>()
+        if (current_filter.IsObject()) {
+          search_filter.checkbooks = napi_string_array_object_to_vector(
+            current_filter.As<Napi::Object>()
           );
         }
       }
 
       if (input_object.Has("categories")) {
         current_filter = input_object.Get("categories");
-        if (current_filter.IsArray()) {
-          search_filter.check_numbers = napi_string_array_to_vector(
-            current_filter.As<Napi::Array>()
+        if (current_filter.IsObject()) {
+          search_filter.categories = napi_string_array_object_to_vector(
+            current_filter.As<Napi::Object>()
           );
         }
       }
 
       if (input_object.Has("subcategories")) {
         current_filter = input_object.Get("subcategories");
-        if (current_filter.IsArray()) {
-          search_filter.check_numbers = napi_string_array_to_vector(
-            current_filter.As<Napi::Array>()
+        if (current_filter.IsObject()) {
+          search_filter.subcategories = napi_string_array_object_to_vector(
+            current_filter.As<Napi::Object>()
           );
         }
       }
 
       if (input_object.Has("itemizations")) {
         current_filter = input_object.Get("itemizations");
-        if (current_filter.IsArray()) {
-          search_filter.check_numbers = napi_string_array_to_vector(
-            current_filter.As<Napi::Array>()
+        if (current_filter.IsObject()) {
+          search_filter.itemizations = napi_string_array_object_to_vector(
+            current_filter.As<Napi::Object>()
           );
         }
       }
