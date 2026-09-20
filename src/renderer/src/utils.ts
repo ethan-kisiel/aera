@@ -52,12 +52,14 @@ export async function flexibleSerach(
     sortConfig
   )
   const combined = new Set([
-    ...checkbookMatches.map(e => JSON.stringify(e)),
-    ...checkNumberMatches.map(e => JSON.stringify(e)),
-    ...categoryMatches.map(e => JSON.stringify(e)),
-    ...subcategoryMatches.map(e => JSON.stringify(e)),
-    ...itemizationMatches.map(e => JSON.stringify(e))
+    ...checkbookMatches.map((e) => JSON.stringify(e)),
+    ...checkNumberMatches.map((e) => JSON.stringify(e)),
+    ...categoryMatches.map((e) => JSON.stringify(e)),
+    ...subcategoryMatches.map((e) => JSON.stringify(e)),
+    ...itemizationMatches.map((e) => JSON.stringify(e))
   ])
 
-  return [...combined].map(e => JSON.parse(e)).sort((a: Entry, b: Entry) => a.date.localeCompare(b.date))
+  return [...combined]
+    .map((e) => JSON.parse(e))
+    .sort((a: Entry, b: Entry) => a.date.localeCompare(b.date))
 }
