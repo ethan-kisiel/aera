@@ -2,6 +2,7 @@ import { LitElement, html, css, TemplateResult } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import './views/entry-input-ribbon'
 import './views/ledger-view'
+import './views/report-view'
 import './components/app-modal'
 import './components/autocomplete-input'
 import { Entry } from '../../types/shared-types'
@@ -10,6 +11,9 @@ import { flexibleSerach } from './utils'
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
+  @state()
+  private _isReportViewShown: boolean = false
+
   @state()
   private _rows: Entry[] = []
 
@@ -109,6 +113,9 @@ export class AeraApp extends LitElement {
   }
 
   protected override render(): TemplateResult {
+    if (!this._isReportViewShown) {
+      return html` <report-view .entries=${this._rows}> </report-view> `
+    }
     return html`
       <div class="container">
         <ledger-view
@@ -249,18 +256,47 @@ export class AeraApp extends LitElement {
   static styles = css`
     :host {
       display: block;
+
       width: 100vw;
       height: 100vh;
+
       overflow: hidden;
+
       box-sizing: border-box;
     }
 
     .container {
+      display: flex;
+      flex-direction: column;
+
       width: 100%;
       height: 100%;
-      display: flex;
-      flex-direction: column; /* Keeps child elements neatly stacked */
+
       overflow: hidden;
+    }
+
+    @media print {
+      :host {
+        display: block;
+
+        width: auto;
+        height: auto;
+        min-height: 0;
+
+        overflow: visible;
+
+        box-sizing: border-box;
+      }
+
+      .container {
+        display: block;
+
+        width: auto;
+        height: auto;
+        min-height: 0;
+
+        overflow: visible;
+      }
     }
   `
 

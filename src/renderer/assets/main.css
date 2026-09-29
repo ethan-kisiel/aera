@@ -506,3 +506,27 @@ textarea.invalid {
 
   background: var(--color-background);
 }
+
+@media print {
+  html,
+  body,
+  #app {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: visible !important;
+  }
+
+  body {
+    display: block !important;
+  }
+
+  #app {
+    display: block !important;
+  }
+}
+
