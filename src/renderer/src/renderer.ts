@@ -9,7 +9,6 @@ import { Entry } from '../../types/shared-types'
 import { ModalAction } from './components/app-modal'
 import { flexibleSerach } from './utils'
 import { ReportMetadata } from './views/report-view'
-import { report } from 'process'
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
