@@ -8,6 +8,8 @@ import './components/autocomplete-input'
 import { Entry } from '../../types/shared-types'
 import { ModalAction } from './components/app-modal'
 import { flexibleSerach } from './utils'
+import { ReportMetadata } from './views/report-view'
+import { report } from 'process'
 
 @customElement('aera-app')
 export class AeraApp extends LitElement {
@@ -113,8 +115,20 @@ export class AeraApp extends LitElement {
   }
 
   protected override render(): TemplateResult {
-    if (!this._isReportViewShown) {
-      return html` <report-view .entries=${this._rows}> </report-view> `
+    if (this._isReportViewShown) {
+      const reportMetadata: ReportMetadata = {
+        title: 'Expense Report',
+        period: `1 January ${this._selectedYear} - 31 December ${this._selectedYear}`,
+        generatedAt: `${new Date(Date.now()).toLocaleString()}`
+      }
+      return html`
+        <report-view
+          @goto-ledger=${this._handleGotoLedger}
+          .entries=${this._rows}
+          .metadata=${reportMetadata}
+        >
+        </report-view>
+      `
     }
     return html`
       <div class="container">
@@ -127,6 +141,7 @@ export class AeraApp extends LitElement {
           @year-add=${this._handleYearAdd}
           @row-focus=${this._handleRowFocus}
           @row-delete=${this._handleRowDelete}
+          @goto-report=${this._handleGotoReport}
           @search-change=${(event) => {
             this._searchText = event.detail.value
             console.log(this._searchText)
@@ -350,5 +365,15 @@ export class AeraApp extends LitElement {
       itemization: '',
       notes: ''
     }
+  }
+
+  private _handleGotoReport(): void {
+    this._isReportViewShown = true
+  }
+
+  private _handleGotoLedger(): void {
+    this._isReportViewShown = false
+    this._searchText = ''
+    this.refreshTableData()
   }
 }

@@ -107,6 +107,19 @@ export class LedgerView extends LitElement {
             <span>Entries: <strong>${this._activeRows.length}</strong></span>
             <span>Total: <strong>${this._formatAmount(this.totalAmount)}</strong></span>
           </div>
+          <button
+            class="print-button"
+            type="button"
+            aria-label="Print report"
+            title="Print report"
+            @click=${this._gotoReport}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6 9V3h12v6 M6 18H4a2 2 0 0 1-2-2v-5 a2 2 0 0 1 2-2h16 a2 2 0 0 1 2 2v5 a2 2 0 0 1-2 2h-2 M6 14h12v7H6z"
+              />
+            </svg>
+          </button>
           <search-bar placeholder=${'Search entries...'} @search-change=${this._handleSearch}>
           </search-bar>
         </header>
@@ -187,6 +200,15 @@ export class LedgerView extends LitElement {
     )
   }
 
+  private _gotoReport(): void {
+    this.dispatchEvent(
+      new CustomEvent('goto-report', {
+        bubbles: true,
+        composed: true
+      })
+    )
+  }
+
   static styles = css`
     :host {
       display: block;
@@ -242,6 +264,36 @@ export class LedgerView extends LitElement {
       flex-shrink: 0;
       border-top: 1px solid var(--color-border, #d9dde3);
       background: var(--color-surface, #ffffff);
+    }
+
+    .print-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 1px solid #cfd4da;
+      border-radius: 4px;
+      background: #ffffff;
+      color: #374151;
+      cursor: pointer;
+    }
+    .print-button svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .print-button:hover {
+      background: #f8f9fa;
+      border-color: #b9bec5;
+    }
+    .print-button:active {
+      background: #f1f3f5;
     }
   `
 }

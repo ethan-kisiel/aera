@@ -60,6 +60,9 @@ export class ReportView extends LitElement {
       border-bottom: 1px solid #e2e5e9;
       background: #ffffff;
     }
+    .title-div {
+      text-align: center;
+    }
     .title {
       margin: 0;
       color: #1f2937;
@@ -304,7 +307,10 @@ export class ReportView extends LitElement {
         this.showPrintButton
           ? html`
               <div class="toolbar">
-                <div>
+                <button class="print-button" type="button" @click=${this._gotoLedger}>
+                  <strong><</strong>
+                </button>
+                <div class="title-div">
                   <h2 class="title">${this.metadata.title}</h2>
 
                   ${
@@ -317,7 +323,6 @@ export class ReportView extends LitElement {
                       : nothing
                   }
                 </div>
-
                 <button class="print-button" type="button" @click=${this._print}>Print</button>
               </div>
             `
@@ -458,6 +463,15 @@ export class ReportView extends LitElement {
         }
       </div>
     `
+  }
+
+  private _gotoLedger(): void {
+    this.dispatchEvent(
+      new CustomEvent('goto-ledger', {
+        bubbles: true,
+        composed: true
+      })
+    )
   }
 
   private _calculateTotal(nodes: ReportNode[]): number {
