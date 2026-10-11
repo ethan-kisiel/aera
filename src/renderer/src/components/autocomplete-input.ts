@@ -236,7 +236,6 @@ export class AutocompleteInput extends LitElement {
 
   protected render(): TemplateResult {
     const ghostText = this._ghostText
-
     return html`
       <div class="container">
         ${
@@ -395,15 +394,17 @@ export class AutocompleteInput extends LitElement {
 
   private _updateMatches(): void {
     const query = this.value.trim().toLowerCase()
+    let matches: string[] = []
 
     if (this.items.length === 0) {
       this._matches = []
       this._isOpen = false
       return
     }
-
-    this._matches = this.items
-      .filter((item) => {
+    if (query === '') {
+      matches = this.items
+    } else {
+      matches = this.items.filter((item) => {
         const normalizedItem = item.toLowerCase()
 
         /*
@@ -414,7 +415,8 @@ export class AutocompleteInput extends LitElement {
          */
         return normalizedItem.startsWith(query) && normalizedItem !== query
       })
-      .slice(0, this.maxResults)
+    }
+    this._matches = matches.slice(0, this.maxResults === -1 ? this.items.length : this.maxResults)
 
     this._highlightedIndex = 0
 
